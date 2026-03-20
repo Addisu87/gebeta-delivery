@@ -47,7 +47,16 @@ export class AuthService {
     pass: string,
   ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.usersService.findByEmail(email);
-    if (user?.password !== pass) {
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const isPasswordValid = await this.passwordService.comparePassword(
+      pass,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
       throw new UnauthorizedException();
     }
 

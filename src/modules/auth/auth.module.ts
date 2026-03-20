@@ -8,6 +8,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { PasswordService } from './password.service';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import type { StringValue } from 'ms';
 
 @Module({
   imports: [
@@ -15,9 +16,15 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get('JWT_ACCESS_SECRET'),
+        secret: config.get<string>(
+          'JWT_ACCESS_SECRET',
+          'access-secret-for-local-dev',
+        ),
         signOptions: {
-          expiresIn: config.get('JWT_ACCESS_EXPIRATION'),
+          expiresIn: config.get<string>(
+            'JWT_ACCESS_EXPIRATION',
+            '15m',
+          ) as StringValue,
         },
       }),
     }),
