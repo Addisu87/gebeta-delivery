@@ -1,42 +1,57 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
+  HttpStatus,
+  HttpCode,
+  Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto } from './dto/auth-register.dto';
+import { LoginDto } from './dto/auth-login.dto';
+import { Public } from 'src/common/decorators/public.decorator';
+import { ResetPasswordDto } from './dto/auth-reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: RegisterDto) {
-    return this.authService.create(createAuthDto);
+  @Public()
+  @Post('register')
+  register(@Body() createAuthDto: RegisterDto) {
+    return this.authService.register(createAuthDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  async signIn(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto.email, loginDto.password);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Public()
+  @Post('forgot-password')
+  forgotPassword(@Body('email') email: string) {
+    return this.authService.sendResetLink(email);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
+  @Public()
+  @Post('reset-password')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Public()
+  @Post('signout')
+  signOut(
+    @Request()
+    req: {
+      user: { sub: number; email?: string };
+    },
+  ) {
+    return this.authService.logout(req.user.sub);
   }
 }

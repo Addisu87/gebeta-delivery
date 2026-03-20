@@ -26,6 +26,10 @@ export class User {
   @Exclude()
   password: string;
 
+  @Column({ nullable: true })
+  @Exclude()
+  refreshToken: string | null;
+
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
