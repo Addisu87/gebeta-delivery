@@ -1,4 +1,11 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { UserRole } from 'src/shared/enums/role.enum';
 
 export class RegisterDto {
   @IsOptional()
@@ -16,6 +23,7 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
-  @IsString()
-  role: 'user' | 'admin'; // optional: default to user if not provided
+  @IsOptional()
+  @IsEnum(UserRole)
+  role?: UserRole;
 }

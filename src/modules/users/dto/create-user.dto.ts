@@ -5,6 +5,6 @@ export class CreateUserDto {
   lastName?: string;
   email: string;
   password: string;
-  roles: UserRole[] = [];
+  role?: UserRole;
   isEmailVerified: boolean;
 }

@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/auth-register.dto';
 import { PasswordService } from './password.service';
 import type { StringValue } from 'ms';
+import { UserRole } from 'src/shared/enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -19,8 +20,8 @@ export class AuthService {
       lastName: createAuthDto.lastName,
       email: createAuthDto.email,
       password: createAuthDto.password,
+      role: createAuthDto.role ?? UserRole.USER,
       isEmailVerified: false,
-      roles: [],
     });
     const verifyToken = await this.jwtService.signAsync({ sub: user.id });
     console.log(`Verify email: /verify-email?token=${verifyToken}`);

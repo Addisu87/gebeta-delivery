@@ -7,12 +7,14 @@ import { configuration } from './config/configuration';
 import { APP_PIPE } from '@nestjs/core';
 import { UsersModule } from './modules/users/users.module';
 import { LoggerModule } from './common/logger/logger.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: configuration }),
     LoggerModule,
     DatabaseModule,
+    AuthModule,
     UsersModule,
   ],
   controllers: [AppController],
