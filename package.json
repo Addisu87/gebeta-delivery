@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "prepare": "husky"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.17",
@@ -35,6 +36,8 @@
     "typeorm": "^0.3.28"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.4",
     "@nestjs/cli": "^11.0.16",
@@ -49,6 +52,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^16.5.0",
+    "husky": "^9.1.7",
     "jest": "^30.3.0",
     "prettier": "^3.8.1",
     "source-map-support": "^0.5.21",
