@@ -1,26 +1,76 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  saltOrRounds = 10;
+
+  constructor(
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+  ) {}
+
+  async findByEmail(email: string): Promise<User | undefined> {
+    return (
+      (await this.userRepository.findOne({ where: { email } })) ?? undefined
+    );
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findById(userId: number): Promise<User | undefined> {
+    return (
+      (await this.userRepository.findOne({ where: { id: userId } })) ??
+      undefined
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.findByEmail(createUserDto.email);
+
+    if (existingUser) {
+      throw new ConflictException('Email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      this.saltOrRounds,
+    );
+
+    const user = this.userRepository.create({
+      ...createUserDto,
+      email: createUserDto.email,
+      firstName: createUserDto.firstName ?? '',
+      lastName: createUserDto.lastName ?? '',
+      password: hashedPassword,
+    });
+    try {
+      return await this.userRepository.save(user);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  findAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
+  findOne(id: number): Promise<User | null> {
+    return this.userRepository.findOne({ where: { id: id } });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    return this.userRepository.update(id, updateUserDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number): Promise<User | null> {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (user) {
+      await this.userRepository.remove(user);
+    }
+    return user;
   }
 }
