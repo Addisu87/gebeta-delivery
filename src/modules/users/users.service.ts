@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -9,6 +9,8 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   saltOrRounds = 10;
+
+  private readonly logger = new Logger(UsersService.name);
 
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
@@ -28,6 +30,7 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    this.logger.log(`Creating user for email=${createUserDto.email}`);
     const existingUser = await this.findByEmail(createUserDto.email);
 
     if (existingUser) {
@@ -49,7 +52,10 @@ export class UsersService {
     try {
       return await this.userRepository.save(user);
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        `Failed to create user for email=${createUserDto.email}`,
+        error instanceof Error ? error.stack : String(error),
+      );
       throw error;
     }
   }
