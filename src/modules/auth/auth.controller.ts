@@ -29,13 +29,11 @@ export class AuthController {
     return this.authService.login(loginDto.email, loginDto.password);
   }
 
-  @Public()
   @Post('forgot-password')
   forgotPassword(@Body('email') email: string) {
     return this.authService.sendResetLink(email);
   }
 
-  @Public()
   @Post('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(
@@ -44,7 +42,6 @@ export class AuthController {
     );
   }
 
-  @Public()
   @Post('signout')
   signOut(
     @Request()
