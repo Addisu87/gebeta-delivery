@@ -5,7 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { WinstonLoggerService } from './common/logger/winston.logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const shouldPublishGraph = process.env.PUBLISH_GRAPH === 'true';
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    snapshot: true,
+    preview: shouldPublishGraph,
+  });
   app.useLogger(app.get(WinstonLoggerService));
   app.flushLogs();
 

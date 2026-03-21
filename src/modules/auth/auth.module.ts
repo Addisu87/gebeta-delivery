@@ -9,6 +9,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { PasswordService } from './password.service';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import type { StringValue } from 'ms';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -40,6 +41,10 @@ import type { StringValue } from 'ms';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
   exports: [AuthService],

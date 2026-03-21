@@ -11,6 +11,7 @@ import { RegisterDto } from './dto/auth-register.dto';
 import { LoginDto } from './dto/auth-login.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { ResetPasswordDto } from './dto/auth-reset-password.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +24,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(@Body() loginDto: LoginDto) {
