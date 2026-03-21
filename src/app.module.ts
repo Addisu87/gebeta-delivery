@@ -1,7 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { ApiConfigService, AppService } from './app.service';
+import { AppService } from './app.service';
 import { DatabaseModule } from './config/database.module';
 import { configuration } from './config/configuration';
 import { APP_PIPE } from '@nestjs/core';
@@ -21,7 +21,6 @@ import { HealthModule } from './modules/health/health.module';
   ],
   controllers: [AppController],
   providers: [
-    ApiConfigService,
     AppService,
     {
       provide: APP_PIPE,
