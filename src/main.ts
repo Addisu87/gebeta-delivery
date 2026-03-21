@@ -14,6 +14,16 @@ async function bootstrap() {
     .setDescription('The Gebeta Delivery API description')
     .setVersion('1.0')
     .addTag('Gebeta Delivery')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'access-token',
+    )
+    .addSecurityRequirements('access-token')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
