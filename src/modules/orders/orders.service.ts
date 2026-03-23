@@ -9,6 +9,7 @@ import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { Delivery } from '../deliveries/entities/delivery.entity';
 import { Promotion } from '../promotions/entities/promotion.entity';
 import { OrderStatus } from 'src/shared/enums/order-status.enum';
+import { calculateDiscountedAmount } from 'src/common/utils/price.util';
 
 @Injectable()
 export class OrdersService {
@@ -39,8 +40,13 @@ export class OrdersService {
         })
       : [];
 
+    const totalAmount = calculateDiscountedAmount(
+      createOrderDto.totalAmount,
+      promotions.filter((promotion) => promotion.isActive).map((p) => p.discountPercent),
+    );
+
     const order = this.orderRepository.create({
-      totalAmount: createOrderDto.totalAmount,
+      totalAmount,
       status: createOrderDto.status ?? OrderStatus.PENDING,
       userId: createOrderDto.userId,
       restaurantId: createOrderDto.restaurantId,
@@ -85,8 +91,17 @@ export class OrdersService {
       });
     }
 
+    const incomingAmount = updateOrderDto.totalAmount ?? order.totalAmount;
+    const promotionPercents = (order.promotions ?? [])
+      .filter((promotion) => promotion.isActive)
+      .map((promotion) => promotion.discountPercent);
+    const recalculatedAmount = calculateDiscountedAmount(
+      incomingAmount,
+      promotionPercents,
+    );
+
     Object.assign(order, {
-      totalAmount: updateOrderDto.totalAmount ?? order.totalAmount,
+      totalAmount: recalculatedAmount,
       status: updateOrderDto.status ?? order.status,
       userId: updateOrderDto.userId ?? order.userId,
       restaurantId: updateOrderDto.restaurantId ?? order.restaurantId,

@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Rating } from './entities/rating.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { Review } from '../review/entities/review.entity';
+import { calculateAverage } from 'src/common/utils/price.util';
 
 @Injectable()
 export class RatingService {
@@ -103,12 +104,9 @@ export class RatingService {
     }
 
     const ratings = restaurant.ratings ?? [];
-    const average =
-      ratings.length > 0
-        ? ratings.reduce((sum, rating) => sum + rating.value, 0) / ratings.length
-        : 0;
-
-    restaurant.averageRating = Number(average.toFixed(2));
+    restaurant.averageRating = calculateAverage(
+      ratings.map((rating) => rating.value),
+    );
     await this.restaurantRepository.save(restaurant);
   }
 }
