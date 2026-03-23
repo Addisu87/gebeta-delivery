@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { WinstonLoggerService } from './common/logger/winston.logger';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const shouldPublishGraph = process.env.PUBLISH_GRAPH === 'true';
@@ -35,6 +37,8 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory);
 
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new HttpExceptionFilter(app.get(WinstonLoggerService)));
+  app.useGlobalInterceptors(new LoggingInterceptor(app.get(WinstonLoggerService)));
   app.enableCors();
 
   await app.listen(process.env.PORT ?? 3000);

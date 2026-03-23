@@ -1,11 +1,13 @@
 import { Driver } from 'src/modules/drivers/entities/driver.entity';
 import { DeliveryStatus } from 'src/shared/enums/delivery-status.enum';
+import { Order } from 'src/modules/orders/entities/order.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -37,6 +39,9 @@ export class Delivery {
   })
   @JoinColumn({ name: 'driverId' })
   driver?: Driver;
+
+  @OneToOne(() => Order, (order) => order.delivery)
+  order: Order;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,6 +1,8 @@
 import { Review } from 'src/modules/review/entities/review.entity';
 import { Rating } from 'src/modules/rating/entities/rating.entity';
 import { Menu } from 'src/modules/menu/entities/menu.entity';
+import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
+import { Order } from 'src/modules/orders/entities/order.entity';
 import {
   Column,
   CreateDateColumn,
@@ -44,6 +46,12 @@ export class Restaurant {
 
   @OneToMany(() => Menu, (menu) => menu.restaurant)
   menus: Menu[];
+
+  @OneToMany(() => Promotion, (promotion) => promotion.restaurant)
+  promotions: Promotion[];
+
+  @OneToMany(() => Order, (order) => order.restaurant)
+  orders: Order[];
 
   @CreateDateColumn()
   createdAt: Date;

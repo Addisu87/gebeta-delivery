@@ -1,13 +1,18 @@
-import { IsNumber, IsString, Min } from 'class-validator';
+import { IsEnum, IsNumber, IsUUID, Min } from 'class-validator';
+import { PaymentMethod } from 'src/shared/enums/payment-method.enum';
+import { PaymentStatus } from 'src/shared/enums/payment-status.enum';
 
 export class CreatePaymentDto {
   @IsNumber()
   @Min(0)
   amount: number;
 
-  @IsString()
-  status: string;
+  @IsEnum(PaymentStatus)
+  status: PaymentStatus;
 
-  @IsString()
-  method: string;
+  @IsEnum(PaymentMethod)
+  method: PaymentMethod;
+
+  @IsUUID()
+  orderId: string;
 }

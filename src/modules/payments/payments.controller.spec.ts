@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 import { Payment } from './entities/payment.entity';
+import { Order } from '../orders/entities/order.entity';
 
 describe('PaymentsController', () => {
   let controller: PaymentsController;
@@ -13,6 +14,7 @@ describe('PaymentsController', () => {
       providers: [
         PaymentsService,
         { provide: getRepositoryToken(Payment), useValue: {} },
+        { provide: getRepositoryToken(Order), useValue: {} },
       ],
     }).compile();
 

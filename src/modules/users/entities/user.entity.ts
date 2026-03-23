@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Order } from 'src/modules/orders/entities/order.entity';
 
 @Entity('users')
 export class User {
@@ -38,6 +40,9 @@ export class User {
 
   @Column({ type: 'text', nullable: true })
   verificationToken: string | null; // token for email verification
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 
   @CreateDateColumn()
   createdAt: Date;

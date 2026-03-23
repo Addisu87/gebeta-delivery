@@ -4,32 +4,98 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
+import { User } from '../users/entities/user.entity';
+import { Restaurant } from '../restaurants/entities/restaurant.entity';
+import { Delivery } from '../deliveries/entities/delivery.entity';
+import { Promotion } from '../promotions/entities/promotion.entity';
+import { OrderStatus } from 'src/shared/enums/order-status.enum';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Restaurant)
+    private readonly restaurantRepository: Repository<Restaurant>,
+    @InjectRepository(Delivery)
+    private readonly deliveryRepository: Repository<Delivery>,
+    @InjectRepository(Promotion)
+    private readonly promotionRepository: Repository<Promotion>,
   ) {}
 
-  create(createOrderDto: CreateOrderDto) {
-    const order = this.orderRepository.create(createOrderDto);
+  async create(createOrderDto: CreateOrderDto) {
+    await this.ensureReferencesExist(
+      createOrderDto.userId,
+      createOrderDto.restaurantId,
+      createOrderDto.deliveryId,
+      createOrderDto.promotionIds,
+    );
+
+    const promotions = createOrderDto.promotionIds?.length
+      ? await this.promotionRepository.find({
+          where: createOrderDto.promotionIds.map((id) => ({ id })),
+        })
+      : [];
+
+    const order = this.orderRepository.create({
+      totalAmount: createOrderDto.totalAmount,
+      status: createOrderDto.status ?? OrderStatus.PENDING,
+      userId: createOrderDto.userId,
+      restaurantId: createOrderDto.restaurantId,
+      deliveryId: createOrderDto.deliveryId,
+      promotions,
+    });
+
     return this.orderRepository.save(order);
   }
 
   findAll() {
-    return this.orderRepository.find({ order: { createdAt: 'DESC' } });
+    return this.orderRepository.find({
+      relations: ['user', 'restaurant', 'delivery', 'payment', 'promotions'],
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async findOne(id: string) {
-    const order = await this.orderRepository.findOne({ where: { id } });
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['user', 'restaurant', 'delivery', 'payment', 'promotions'],
+    });
     if (!order) throw new NotFoundException(`Order with id ${id} not found`);
     return order;
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto) {
     const order = await this.findOne(id);
-    Object.assign(order, updateOrderDto);
+
+    await this.ensureReferencesExist(
+      updateOrderDto.userId,
+      updateOrderDto.restaurantId,
+      updateOrderDto.deliveryId,
+      updateOrderDto.promotionIds,
+    );
+
+    if (updateOrderDto.promotionIds) {
+      order.promotions = await this.promotionRepository.find({
+        where: updateOrderDto.promotionIds.map((promotionId) => ({
+          id: promotionId,
+        })),
+      });
+    }
+
+    Object.assign(order, {
+      totalAmount: updateOrderDto.totalAmount ?? order.totalAmount,
+      status: updateOrderDto.status ?? order.status,
+      userId: updateOrderDto.userId ?? order.userId,
+      restaurantId: updateOrderDto.restaurantId ?? order.restaurantId,
+      deliveryId:
+        updateOrderDto.deliveryId !== undefined
+          ? updateOrderDto.deliveryId
+          : order.deliveryId,
+    });
+
     return this.orderRepository.save(order);
   }
 
@@ -37,5 +103,44 @@ export class OrdersService {
     const order = await this.findOne(id);
     await this.orderRepository.remove(order);
     return { message: 'Order removed successfully' };
+  }
+
+  private async ensureReferencesExist(
+    userId?: number,
+    restaurantId?: string,
+    deliveryId?: string,
+    promotionIds?: string[],
+  ) {
+    if (userId !== undefined) {
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    if (restaurantId) {
+      const restaurant = await this.restaurantRepository.findOne({
+        where: { id: restaurantId },
+      });
+      if (!restaurant) {
+        throw new NotFoundException(`Restaurant with id ${restaurantId} not found`);
+      }
+    }
+
+    if (deliveryId) {
+      const delivery = await this.deliveryRepository.findOne({
+        where: { id: deliveryId },
+      });
+      if (!delivery) {
+        throw new NotFoundException(`Delivery with id ${deliveryId} not found`);
+      }
+    }
+
+    if (promotionIds?.length) {
+      const promotions = await this.promotionRepository.find({
+        where: promotionIds.map((id) => ({ id })),
+      });
+      if (promotions.length !== promotionIds.length) {
+        throw new NotFoundException('One or more promotions were not found');
+      }
+    }
   }
 }

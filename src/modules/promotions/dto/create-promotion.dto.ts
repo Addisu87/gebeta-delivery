@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
 
 export class CreatePromotionDto {
   @IsString()
@@ -11,4 +11,8 @@ export class CreatePromotionDto {
 
   @IsBoolean()
   isActive: boolean;
+
+  @IsOptional()
+  @IsUUID()
+  restaurantId?: string;
 }
