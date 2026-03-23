@@ -26,30 +26,28 @@ export class AuthController {
   // 🔐 Core
   @Public()
   @Post('register')
-  register(@Body() createAuthDto: RegisterDto) {
-    return this.authService.register(createAuthDto);
+  register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
   }
 
   @Public()
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto.email, loginDto.password);
+  signIn(@Body() dto: LoginDto) {
+    return this.authService.login(dto.email, dto.password);
   }
 
-  @Public()
   @Post('refresh')
-  refresh(@Body() refreshTokenDto: RefreshTokenDto) {
-    return this.authService.refresh(refreshTokenDto.refreshToken);
+  refresh(@Body() dto: RefreshTokenDto) {
+    return this.authService.refresh(dto.refreshToken);
   }
 
   // 🔑 Password
-  @Public()
   @Post('forgot-password')
   @Throttle({ default: { limit: 3, ttl: 60000 } })
-  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(forgotPasswordDto.email);
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -58,26 +56,20 @@ export class AuthController {
     return this.authService.changePassword(req.user.sub, dto);
   }
 
-  @Public()
   @Post('reset-password')
-  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(
-      resetPasswordDto.token,
-      resetPasswordDto.newPassword,
-    );
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.token, dto.newPassword);
   }
 
   // 📧 Email Verification
-  @Public()
   @Post('send-verification')
-  sendVerification(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.authService.sendVerification(forgotPasswordDto.email);
+  sendVerification(@Body() dto: ForgotPasswordDto) {
+    return this.authService.sendVerification(dto.email);
   }
 
-  @Public()
   @Post('verify-email')
-  verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-    return this.authService.verifyEmail(verifyEmailDto.token);
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto.token);
   }
 
   @Post('signout')
