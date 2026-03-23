@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { Repository } from 'typeorm';
+import { Admin } from './entities/admin.entity';
 
 @Injectable()
 export class AdminService {
+  constructor(
+    @InjectRepository(Admin)
+    private readonly adminRepository: Repository<Admin>,
+  ) {}
+
   create(createAdminDto: CreateAdminDto) {
-    return 'This action adds a new admin';
+    const admin = this.adminRepository.create(createAdminDto);
+    return this.adminRepository.save(admin);
   }
 
   findAll() {
-    return `This action returns all admin`;
+    return this.adminRepository.find({ order: { createdAt: 'DESC' } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
+  async findOne(id: string) {
+    const admin = await this.adminRepository.findOne({ where: { id } });
+    if (!admin) throw new NotFoundException(`Admin with id ${id} not found`);
+    return admin;
   }
 
-  update(id: number, updateAdminDto: UpdateAdminDto) {
-    return `This action updates a #${id} admin`;
+  async update(id: string, updateAdminDto: UpdateAdminDto) {
+    const admin = await this.findOne(id);
+    Object.assign(admin, updateAdminDto);
+    return this.adminRepository.save(admin);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+  async remove(id: string) {
+    const admin = await this.findOne(id);
+    await this.adminRepository.remove(admin);
+    return { message: 'Admin removed successfully' };
   }
 }

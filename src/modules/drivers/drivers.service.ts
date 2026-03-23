@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
+import { Repository } from 'typeorm';
+import { Driver } from './entities/driver.entity';
 
 @Injectable()
 export class DriversService {
+  constructor(
+    @InjectRepository(Driver)
+    private readonly driverRepository: Repository<Driver>,
+  ) {}
+
   create(createDriverDto: CreateDriverDto) {
-    return 'This action adds a new driver';
+    const driver = this.driverRepository.create({
+      ...createDriverDto,
+      isAvailable: createDriverDto.isAvailable ?? true,
+    });
+    return this.driverRepository.save(driver);
   }
 
   findAll() {
-    return `This action returns all drivers`;
+    return this.driverRepository.find({
+      relations: ['deliveries'],
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} driver`;
+  async findOne(id: string) {
+    const driver = await this.driverRepository.findOne({
+      where: { id },
+      relations: ['deliveries'],
+    });
+    if (!driver) {
+      throw new NotFoundException(`Driver with id ${id} not found`);
+    }
+    return driver;
   }
 
-  update(id: number, updateDriverDto: UpdateDriverDto) {
-    return `This action updates a #${id} driver`;
+  async update(id: string, updateDriverDto: UpdateDriverDto) {
+    const driver = await this.findOne(id);
+    Object.assign(driver, updateDriverDto);
+    return this.driverRepository.save(driver);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} driver`;
+  async remove(id: string) {
+    const driver = await this.findOne(id);
+    await this.driverRepository.remove(driver);
+    return { message: 'Driver removed successfully' };
   }
 }

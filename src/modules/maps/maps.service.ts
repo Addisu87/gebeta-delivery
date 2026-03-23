@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMapDto } from './dto/create-map.dto';
 import { UpdateMapDto } from './dto/update-map.dto';
+import { Repository } from 'typeorm';
+import { Map } from './entities/map.entity';
 
 @Injectable()
 export class MapsService {
+  constructor(
+    @InjectRepository(Map)
+    private readonly mapRepository: Repository<Map>,
+  ) {}
+
   create(createMapDto: CreateMapDto) {
-    return 'This action adds a new map';
+    const map = this.mapRepository.create(createMapDto);
+    return this.mapRepository.save(map);
   }
 
   findAll() {
-    return `This action returns all maps`;
+    return this.mapRepository.find({ order: { createdAt: 'DESC' } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} map`;
+  async findOne(id: string) {
+    const map = await this.mapRepository.findOne({ where: { id } });
+    if (!map) throw new NotFoundException(`Map with id ${id} not found`);
+    return map;
   }
 
-  update(id: number, updateMapDto: UpdateMapDto) {
-    return `This action updates a #${id} map`;
+  async update(id: string, updateMapDto: UpdateMapDto) {
+    const map = await this.findOne(id);
+    Object.assign(map, updateMapDto);
+    return this.mapRepository.save(map);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} map`;
+  async remove(id: string) {
+    const map = await this.findOne(id);
+    await this.mapRepository.remove(map);
+    return { message: 'Map removed successfully' };
   }
 }

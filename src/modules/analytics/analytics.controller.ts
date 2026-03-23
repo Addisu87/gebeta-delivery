@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { CreateAnalyticsDto } from './dto/create-analytics.dto';
@@ -26,20 +27,20 @@ export class AnalyticsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.analyticsService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.analyticsService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAnalyticsDto: UpdateAnalyticsDto,
   ) {
-    return this.analyticsService.update(+id, updateAnalyticsDto);
+    return this.analyticsService.update(id, updateAnalyticsDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.analyticsService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.analyticsService.remove(id);
   }
 }

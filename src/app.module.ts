@@ -11,6 +11,21 @@ import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { RestaurantsModule } from './modules/restaurants/restaurants.module';
+import { ReviewModule } from './modules/review/review.module';
+import { RatingModule } from './modules/rating/rating.module';
+import { MenuModule } from './modules/menu/menu.module';
+import { DriversModule } from './modules/drivers/drivers.module';
+import { DeliveriesModule } from './modules/deliveries/deliveries.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { PromotionsModule } from './modules/promotions/promotions.module';
+import { MapsModule } from './modules/maps/maps.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SearchModule } from './modules/search/search.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -20,6 +35,21 @@ import { ThrottlerModule } from '@nestjs/throttler';
     HealthModule,
     AuthModule,
     UsersModule,
+    RestaurantsModule,
+    ReviewModule,
+    RatingModule,
+    MenuModule,
+    DriversModule,
+    DeliveriesModule,
+    OrdersModule,
+    PaymentsModule,
+    PromotionsModule,
+    MapsModule,
+    NotificationsModule,
+    SearchModule,
+    AnalyticsModule,
+    ChatModule,
+    AdminModule,
     DevtoolsModule.register({
       http: process.env.NODE_ENV !== 'production',
     }),

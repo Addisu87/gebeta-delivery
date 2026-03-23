@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
+import { Chat } from './entities/chat.entity';
 
 describe('ChatController', () => {
   let controller: ChatController;
@@ -8,7 +10,7 @@ describe('ChatController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChatController],
-      providers: [ChatService],
+      providers: [ChatService, { provide: getRepositoryToken(Chat), useValue: {} }],
     }).compile();
 
     controller = module.get<ChatController>(ChatController);

@@ -1,1 +1,13 @@
-export class CreateNotificationDto {}
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
+
+export class CreateNotificationDto {
+  @IsString()
+  title: string;
+
+  @IsString()
+  message: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isRead?: boolean;
+}

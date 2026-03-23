@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
+import { Repository } from 'typeorm';
+import { Restaurant } from './entities/restaurant.entity';
 
 @Injectable()
 export class RestaurantsService {
-  create(createRestaurantDto: CreateRestaurantDto) {
-    return 'This action adds a new restaurant';
+  constructor(
+    @InjectRepository(Restaurant)
+    private readonly restaurantRepository: Repository<Restaurant>,
+  ) {}
+
+  create(dto: CreateRestaurantDto) {
+    const restaurant = this.restaurantRepository.create({
+      ...dto,
+      isOpen: dto.isOpen ?? true,
+      averageRating: 0,
+      photos: [],
+    });
+    return this.restaurantRepository.save(restaurant);
   }
 
   findAll() {
-    return `This action returns all restaurants`;
+    return this.restaurantRepository.find({
+      relations: ['reviews', 'ratings'],
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} restaurant`;
+  async findOne(id: string) {
+    const restaurant = await this.restaurantRepository.findOne({
+      where: { id },
+      relations: ['reviews', 'ratings'],
+    });
+    if (!restaurant) {
+      throw new NotFoundException(`Restaurant with id ${id} not found`);
+    }
+    return restaurant;
   }
 
-  update(id: number, updateRestaurantDto: UpdateRestaurantDto) {
-    return `This action updates a #${id} restaurant`;
+  async update(id: string, updateRestaurantDto: UpdateRestaurantDto) {
+    const restaurant = await this.findOne(id);
+    Object.assign(restaurant, updateRestaurantDto);
+    return this.restaurantRepository.save(restaurant);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} restaurant`;
+  async remove(id: string) {
+    const restaurant = await this.findOne(id);
+    await this.restaurantRepository.remove(restaurant);
+    return { message: 'Restaurant removed successfully' };
   }
 }

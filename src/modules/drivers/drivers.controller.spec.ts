@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { DriversController } from './drivers.controller';
 import { DriversService } from './drivers.service';
+import { Driver } from './entities/driver.entity';
 
 describe('DriversController', () => {
   let controller: DriversController;
@@ -8,7 +10,10 @@ describe('DriversController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DriversController],
-      providers: [DriversService],
+      providers: [
+        DriversService,
+        { provide: getRepositoryToken(Driver), useValue: {} },
+      ],
     }).compile();
 
     controller = module.get<DriversController>(DriversController);

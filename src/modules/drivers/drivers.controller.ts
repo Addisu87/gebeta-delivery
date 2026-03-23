@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
@@ -26,17 +27,20 @@ export class DriversController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.driversService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.driversService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto) {
-    return this.driversService.update(+id, updateDriverDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDriverDto: UpdateDriverDto,
+  ) {
+    return this.driversService.update(id, updateDriverDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.driversService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.driversService.remove(id);
   }
 }

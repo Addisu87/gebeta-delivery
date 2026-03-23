@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { MapsService } from './maps.service';
 import { CreateMapDto } from './dto/create-map.dto';
@@ -26,17 +27,20 @@ export class MapsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.mapsService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.mapsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMapDto: UpdateMapDto) {
-    return this.mapsService.update(+id, updateMapDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateMapDto: UpdateMapDto,
+  ) {
+    return this.mapsService.update(id, updateMapDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.mapsService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.mapsService.remove(id);
   }
 }

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { DeliveriesService } from './deliveries.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
@@ -26,20 +27,20 @@ export class DeliveriesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.deliveriesService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.deliveriesService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDeliveryDto: UpdateDeliveryDto,
   ) {
-    return this.deliveriesService.update(+id, updateDeliveryDto);
+    return this.deliveriesService.update(id, updateDeliveryDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.deliveriesService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.deliveriesService.remove(id);
   }
 }

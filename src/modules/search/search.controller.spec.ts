@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
+import { Search } from './entities/search.entity';
 
 describe('SearchController', () => {
   let controller: SearchController;
@@ -8,7 +10,10 @@ describe('SearchController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SearchController],
-      providers: [SearchService],
+      providers: [
+        SearchService,
+        { provide: getRepositoryToken(Search), useValue: {} },
+      ],
     }).compile();
 
     controller = module.get<SearchController>(SearchController);

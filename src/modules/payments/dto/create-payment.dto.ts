@@ -1,1 +1,13 @@
-export class CreatePaymentDto {}
+import { IsNumber, IsString, Min } from 'class-validator';
+
+export class CreatePaymentDto {
+  @IsNumber()
+  @Min(0)
+  amount: number;
+
+  @IsString()
+  status: string;
+
+  @IsString()
+  method: string;
+}

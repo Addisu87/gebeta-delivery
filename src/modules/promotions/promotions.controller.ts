@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { PromotionsService } from './promotions.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
@@ -26,20 +27,20 @@ export class PromotionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.promotionsService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.promotionsService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePromotionDto: UpdatePromotionDto,
   ) {
-    return this.promotionsService.update(+id, updatePromotionDto);
+    return this.promotionsService.update(id, updatePromotionDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.promotionsService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.promotionsService.remove(id);
   }
 }
