@@ -36,8 +36,8 @@ export class User {
   @Column({ default: false })
   isEmailVerified: boolean; // email verification status
 
-  @Column({ nullable: true })
-  verificationToken: string; // token for email verification
+  @Column({ type: 'text', nullable: true })
+  verificationToken: string | null; // token for email verification
 
   @CreateDateColumn()
   createdAt: Date;

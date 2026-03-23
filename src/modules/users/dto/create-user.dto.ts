@@ -7,4 +7,5 @@ export class CreateUserDto {
   password: string;
   role?: UserRole;
   isEmailVerified: boolean;
+  verificationToken?: string | null;
 }

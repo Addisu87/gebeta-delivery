@@ -10,6 +10,7 @@ import { PasswordService } from './password.service';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import type { StringValue } from 'ms';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
   providers: [
     AuthService,
     PasswordService,
+    JwtStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -47,6 +49,6 @@ import { ThrottlerGuard } from '@nestjs/throttler';
       useClass: ThrottlerGuard,
     },
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtStrategy],
 })
 export class AuthModule {}
