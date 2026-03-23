@@ -7,10 +7,17 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { DriversService } from './drivers.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
+import {
+  buildImageParseFilePipe,
+  imageUploadOptions,
+} from '../photo/photo-upload.util';
 
 @Controller('drivers')
 export class DriversController {
@@ -37,6 +44,16 @@ export class DriversController {
     @Body() updateDriverDto: UpdateDriverDto,
   ) {
     return this.driversService.update(id, updateDriverDto);
+  }
+
+  @Post(':id/photo')
+  @UseInterceptors(FileInterceptor('photo', imageUploadOptions('drivers')))
+  uploadPhoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile(buildImageParseFilePipe())
+    file: Express.Multer.File,
+  ) {
+    return this.driversService.uploadPhoto(id, file.path);
   }
 
   @Delete(':id')

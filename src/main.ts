@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
 import { WinstonLoggerService } from './common/logger/winston.logger';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { SocketIoAdapter } from './common/adapters/socket-io.adapter';
 
 async function bootstrap() {
   const shouldPublishGraph = process.env.PUBLISH_GRAPH === 'true';
@@ -12,6 +12,7 @@ async function bootstrap() {
     bufferLogs: true,
     snapshot: true,
     preview: shouldPublishGraph,
+    rawBody: true,
   });
   app.useLogger(app.get(WinstonLoggerService));
   app.flushLogs();
@@ -36,9 +37,9 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter(app.get(WinstonLoggerService)));
   app.useGlobalInterceptors(new LoggingInterceptor(app.get(WinstonLoggerService)));
+  app.useWebSocketAdapter(new SocketIoAdapter(app));
   app.enableCors();
 
   await app.listen(process.env.PORT ?? 3000);

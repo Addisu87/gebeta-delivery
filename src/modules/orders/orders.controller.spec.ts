@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getQueueToken } from '@nestjs/bullmq';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
@@ -7,6 +8,7 @@ import { User } from '../users/entities/user.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { Delivery } from '../deliveries/entities/delivery.entity';
 import { Promotion } from '../promotions/entities/promotion.entity';
+import { ORDERS_QUEUE } from '../queue/queue.constants';
 
 describe('OrdersController', () => {
   let controller: OrdersController;
@@ -21,6 +23,7 @@ describe('OrdersController', () => {
         { provide: getRepositoryToken(Restaurant), useValue: {} },
         { provide: getRepositoryToken(Delivery), useValue: {} },
         { provide: getRepositoryToken(Promotion), useValue: {} },
+        { provide: getQueueToken(ORDERS_QUEUE), useValue: { add: jest.fn() } },
       ],
     }).compile();
 

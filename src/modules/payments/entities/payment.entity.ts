@@ -10,6 +10,7 @@ import {
 import { Order } from 'src/modules/orders/entities/order.entity';
 import { PaymentStatus } from 'src/shared/enums/payment-status.enum';
 import { PaymentMethod } from 'src/shared/enums/payment-method.enum';
+import { PaymentProvider } from 'src/shared/enums/payment-provider.enum';
 
 @Entity('payments')
 export class Payment {
@@ -24,6 +25,24 @@ export class Payment {
 
   @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.CASH })
   method: PaymentMethod;
+
+  @Column({ type: 'enum', enum: PaymentProvider, default: PaymentProvider.STRIPE })
+  provider: PaymentProvider;
+
+  @Column({ default: 'ETB' })
+  currency: string;
+
+  @Column({ nullable: true })
+  providerReference?: string;
+
+  @Column({ type: 'text', nullable: true })
+  checkoutUrl?: string;
+
+  @Column({ type: 'text', nullable: true })
+  failureReason?: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  providerResponse?: Record<string, unknown>;
 
   @Column({ type: 'uuid', unique: true })
   orderId: string;

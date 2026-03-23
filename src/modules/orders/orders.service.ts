@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Queue } from 'bullmq';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
@@ -10,6 +12,7 @@ import { Delivery } from '../deliveries/entities/delivery.entity';
 import { Promotion } from '../promotions/entities/promotion.entity';
 import { OrderStatus } from 'src/shared/enums/order-status.enum';
 import { calculateDiscountedAmount } from 'src/common/utils/price.util';
+import { ORDERS_QUEUE } from '../queue/queue.constants';
 
 @Injectable()
 export class OrdersService {
@@ -24,6 +27,8 @@ export class OrdersService {
     private readonly deliveryRepository: Repository<Delivery>,
     @InjectRepository(Promotion)
     private readonly promotionRepository: Repository<Promotion>,
+    @InjectQueue(ORDERS_QUEUE)
+    private readonly ordersQueue: Queue,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
@@ -54,7 +59,18 @@ export class OrdersService {
       promotions,
     });
 
-    return this.orderRepository.save(order);
+    const savedOrder = await this.orderRepository.save(order);
+    await this.ordersQueue.add(
+      'order.created',
+      {
+        orderId: savedOrder.id,
+        userId: savedOrder.userId,
+        restaurantId: savedOrder.restaurantId,
+        totalAmount: savedOrder.totalAmount,
+      },
+      { jobId: `order-created:${savedOrder.id}` },
+    );
+    return savedOrder;
   }
 
   findAll() {

@@ -1,10 +1,13 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './config/database.module';
 import { configuration } from './config/configuration';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import { UsersModule } from './modules/users/users.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -26,10 +29,23 @@ import { SearchModule } from './modules/search/search.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { QueueModule } from './modules/queue/queue.module';
+import { RequestValidationPipe } from './common/pipes/request-validation.pipe';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: configuration }),
+    ScheduleModule.forRoot(),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        ttl: config.get<number>('CACHE_TTL', 60),
+        max: config.get<number>('CACHE_MAX_ITEMS', 200),
+      }),
+    }),
+    QueueModule,
     LoggerModule,
     DatabaseModule,
     HealthModule,
@@ -69,7 +85,11 @@ import { AdminModule } from './modules/admin/admin.module';
     AppService,
     {
       provide: APP_PIPE,
-      useClass: ValidationPipe,
+      useClass: RequestValidationPipe,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
     },
   ],
 })

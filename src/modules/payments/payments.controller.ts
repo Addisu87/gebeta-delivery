@@ -7,7 +7,11 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  Headers,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
@@ -19,6 +23,20 @@ export class PaymentsController {
   @Post()
   create(@Body() createPaymentDto: CreatePaymentDto) {
     return this.paymentsService.create(createPaymentDto);
+  }
+
+  @Post('webhooks/stripe')
+  stripeWebhook(
+    @Req() request: Request & { rawBody?: Buffer },
+    @Headers('stripe-signature') signature?: string,
+  ) {
+    if (!signature) {
+      throw new BadRequestException('Missing stripe-signature header');
+    }
+    if (!request.rawBody) {
+      throw new BadRequestException('Missing raw body for Stripe webhook');
+    }
+    return this.paymentsService.handleStripeWebhook(request.rawBody, signature);
   }
 
   @Get()

@@ -4,12 +4,14 @@ import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
 import { Repository } from 'typeorm';
 import { Driver } from './entities/driver.entity';
+import { PhotoService } from '../photo/photo.service';
 
 @Injectable()
 export class DriversService {
   constructor(
     @InjectRepository(Driver)
     private readonly driverRepository: Repository<Driver>,
+    private readonly photoService: PhotoService,
   ) {}
 
   create(createDriverDto: CreateDriverDto) {
@@ -41,6 +43,12 @@ export class DriversService {
   async update(id: string, updateDriverDto: UpdateDriverDto) {
     const driver = await this.findOne(id);
     Object.assign(driver, updateDriverDto);
+    return this.driverRepository.save(driver);
+  }
+
+  async uploadPhoto(id: string, photoPath: string) {
+    const driver = await this.findOne(id);
+    driver.photo = this.photoService.setPhoto(photoPath);
     return this.driverRepository.save(driver);
   }
 

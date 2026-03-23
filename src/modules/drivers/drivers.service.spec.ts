@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DriversService } from './drivers.service';
 import { Driver } from './entities/driver.entity';
+import { PhotoService } from '../photo/photo.service';
 
 describe('DriversService', () => {
   let service: DriversService;
@@ -11,6 +12,7 @@ describe('DriversService', () => {
       providers: [
         DriversService,
         { provide: getRepositoryToken(Driver), useValue: {} },
+        { provide: PhotoService, useValue: {} },
       ],
     }).compile();
 

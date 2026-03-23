@@ -1,23 +1,42 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { Queue } from 'bullmq';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
+import { NOTIFICATIONS_QUEUE } from '../queue/queue.constants';
+import { NotificationsGateway } from './notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
+    @InjectQueue(NOTIFICATIONS_QUEUE)
+    private readonly notificationsQueue: Queue,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
-  create(createNotificationDto: CreateNotificationDto) {
+  async create(createNotificationDto: CreateNotificationDto) {
     const notification = this.notificationRepository.create({
       ...createNotificationDto,
       isRead: createNotificationDto.isRead ?? false,
     });
-    return this.notificationRepository.save(notification);
+    const savedNotification = await this.notificationRepository.save(notification);
+    await this.notificationsQueue.add(
+      'notification.created',
+      {
+        notificationId: savedNotification.id,
+        title: savedNotification.title,
+        message: savedNotification.message,
+        recipientEmail: savedNotification.recipientEmail,
+      },
+      { jobId: `notification-created:${savedNotification.id}` },
+    );
+    this.notificationsGateway.emitNotificationCreated(savedNotification);
+    return savedNotification;
   }
 
   findAll() {

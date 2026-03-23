@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { DriversController } from './drivers.controller';
 import { DriversService } from './drivers.service';
 import { Driver } from './entities/driver.entity';
+import { PhotoService } from '../photo/photo.service';
 
 describe('DriversController', () => {
   let controller: DriversController;
@@ -13,6 +14,7 @@ describe('DriversController', () => {
       providers: [
         DriversService,
         { provide: getRepositoryToken(Driver), useValue: {} },
+        { provide: PhotoService, useValue: {} },
       ],
     }).compile();
 

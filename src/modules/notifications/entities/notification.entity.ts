@@ -17,6 +17,9 @@ export class Notification {
   @Column({ type: 'text' })
   message: string;
 
+  @Column({ nullable: true })
+  recipientEmail?: string;
+
   @Column({ default: false })
   isRead: boolean;
 

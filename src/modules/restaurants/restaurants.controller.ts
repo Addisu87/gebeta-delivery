@@ -7,10 +7,17 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
+import {
+  buildImageParseFilePipe,
+  imageUploadOptions,
+} from '../photo/photo-upload.util';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -37,6 +44,16 @@ export class RestaurantsController {
     @Body() updateRestaurantDto: UpdateRestaurantDto,
   ) {
     return this.restaurantsService.update(id, updateRestaurantDto);
+  }
+
+  @Post(':id/photos')
+  @UseInterceptors(FileInterceptor('photo', imageUploadOptions('restaurants')))
+  uploadPhoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile(buildImageParseFilePipe())
+    file: Express.Multer.File,
+  ) {
+    return this.restaurantsService.addPhoto(id, file.path);
   }
 
   @Delete(':id')
