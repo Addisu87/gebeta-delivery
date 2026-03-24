@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { PAYMENTS_QUEUE } from '../queue/queue.constants';
+import { JOB_PAYMENT_CREATED, PAYMENTS_QUEUE } from 'src/shared/constants';
 
 type PaymentJobPayload = {
   paymentId: string;
@@ -16,9 +16,9 @@ export class PaymentsQueueProcessor extends WorkerHost {
   private readonly logger = new Logger(PaymentsQueueProcessor.name);
 
   async process(job: Job<PaymentJobPayload>) {
-    if (job.name === 'payment.created') {
+    if (job.name === JOB_PAYMENT_CREATED) {
       this.logger.log(
-        `Processing payment.created for paymentId=${job.data.paymentId}`,
+        `Processing ${JOB_PAYMENT_CREATED} for paymentId=${job.data.paymentId}`,
       );
       return { processed: true };
     }

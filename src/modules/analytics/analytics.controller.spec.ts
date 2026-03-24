@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AnalyticsController } from './analytics.controller';
 import { AnalyticsService } from './analytics.service';
 import { Analytics } from './entities/analytics.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('AnalyticsController', () => {
   let controller: AnalyticsController;

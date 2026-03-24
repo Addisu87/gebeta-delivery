@@ -5,10 +5,10 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { SALT_ROUNDS } from 'src/shared/constants';
 
 @Injectable()
 export class UsersService {
-  saltOrRounds = 10;
 
   private readonly logger = new Logger(UsersService.name);
 
@@ -39,7 +39,7 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(
       createUserDto.password,
-      this.saltOrRounds,
+      SALT_ROUNDS,
     );
 
     const user = this.userRepository.create({

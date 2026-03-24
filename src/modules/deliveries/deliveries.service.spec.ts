@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { DeliveriesService } from './deliveries.service';
 import { Delivery } from './entities/delivery.entity';
 import { Driver } from '../drivers/entities/driver.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('DeliveriesService', () => {
   let service: DeliveriesService;

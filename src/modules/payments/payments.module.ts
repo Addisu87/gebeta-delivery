@@ -5,7 +5,7 @@ import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
 import { Payment } from './entities/payment.entity';
 import { Order } from '../orders/entities/order.entity';
-import { PAYMENTS_QUEUE } from '../queue/queue.constants';
+import { PAYMENTS_QUEUE } from 'src/shared/constants';
 import { PaymentsQueueProcessor } from './payments.queue.processor';
 import { StripeProvider } from './providers/stripe.provider';
 import { ChapaProvider } from './providers/chapa.provider';

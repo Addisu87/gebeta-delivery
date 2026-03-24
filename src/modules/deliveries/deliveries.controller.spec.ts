@@ -4,6 +4,7 @@ import { DeliveriesController } from './deliveries.controller';
 import { DeliveriesService } from './deliveries.service';
 import { Delivery } from './entities/delivery.entity';
 import { Driver } from '../drivers/entities/driver.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('DeliveriesController', () => {
   let controller: DeliveriesController;

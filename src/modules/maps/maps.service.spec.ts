@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MapsService } from './maps.service';
 import { Map } from './entities/map.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('MapsService', () => {
   let service: MapsService;

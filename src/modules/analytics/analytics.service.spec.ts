@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AnalyticsService } from './analytics.service';
 import { Analytics } from './entities/analytics.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('AnalyticsService', () => {
   let service: AnalyticsService;

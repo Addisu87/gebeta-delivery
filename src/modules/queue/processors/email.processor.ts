@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { EMAIL_QUEUE } from '../queue.constants';
+import { EMAIL_QUEUE, JOB_EMAIL_SEND } from 'src/shared/constants';
 import { SendgridEmailService } from '../email/sendgrid-email.service';
 import { SmtpEmailService } from '../email/smtp-email.service';
 
@@ -26,7 +26,7 @@ export class EmailProcessor extends WorkerHost {
   }
 
   async process(job: Job<EmailJobPayload>) {
-    if (job.name !== 'email.send') {
+    if (job.name !== JOB_EMAIL_SEND) {
       return { ignored: true };
     }
 

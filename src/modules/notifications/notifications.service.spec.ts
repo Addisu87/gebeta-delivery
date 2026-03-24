@@ -3,8 +3,9 @@ import { getQueueToken } from '@nestjs/bullmq';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotificationsService } from './notifications.service';
 import { Notification } from './entities/notification.entity';
-import { NOTIFICATIONS_QUEUE, EMAIL_QUEUE } from '../queue/queue.constants';
+import { NOTIFICATIONS_QUEUE, EMAIL_QUEUE } from 'src/shared/constants';
 import { NotificationsGateway } from './notifications.gateway';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
@@ -16,12 +17,12 @@ describe('NotificationsService', () => {
         { provide: getRepositoryToken(Notification), useValue: {} },
         {
           provide: getQueueToken(NOTIFICATIONS_QUEUE),
-          useValue: { add: jest.fn() },
+          useValue: { add: vi.fn() },
         },
-        { provide: getQueueToken(EMAIL_QUEUE), useValue: { add: jest.fn() } },
+        { provide: getQueueToken(EMAIL_QUEUE), useValue: { add: vi.fn() } },
         {
           provide: NotificationsGateway,
-          useValue: { emitNotificationCreated: jest.fn() },
+          useValue: { emitNotificationCreated: vi.fn() },
         },
       ],
     }).compile();

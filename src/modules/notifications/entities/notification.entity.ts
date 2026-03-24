@@ -5,11 +5,15 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { NotificationType } from 'src/shared/enums/notification-type.enum';
 
 @Entity('notifications')
 export class Notification {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ type: 'enum', enum: NotificationType, default: NotificationType.SYSTEM })
+  type: NotificationType;
 
   @Column()
   title: string;

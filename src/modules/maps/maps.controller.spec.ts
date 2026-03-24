@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { MapsController } from './maps.controller';
 import { MapsService } from './maps.service';
 import { Map } from './entities/map.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('MapsController', () => {
   let controller: MapsController;

@@ -8,7 +8,7 @@ import { User } from '../users/entities/user.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { Delivery } from '../deliveries/entities/delivery.entity';
 import { Promotion } from '../promotions/entities/promotion.entity';
-import { ORDERS_QUEUE } from '../queue/queue.constants';
+import { ORDERS_QUEUE } from 'src/shared/constants';
 import { OrdersQueueProcessor } from './orders.queue.processor';
 
 @Module({

@@ -6,7 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
 import { Notification } from './entities/notification.entity';
-import { EMAIL_QUEUE, NOTIFICATIONS_QUEUE } from '../queue/queue.constants';
+import { EMAIL_QUEUE, NOTIFICATIONS_QUEUE } from 'src/shared/constants';
 import { NotificationProcessor } from '../queue/processors/notification.processor';
 import { EmailProcessor } from '../queue/processors/email.processor';
 import { SendgridEmailService } from '../queue/email/sendgrid-email.service';

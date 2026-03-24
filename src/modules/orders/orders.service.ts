@@ -12,7 +12,7 @@ import { Delivery } from '../deliveries/entities/delivery.entity';
 import { Promotion } from '../promotions/entities/promotion.entity';
 import { OrderStatus } from 'src/shared/enums/order-status.enum';
 import { calculateDiscountedAmount } from 'src/common/utils/price.util';
-import { ORDERS_QUEUE } from '../queue/queue.constants';
+import { JOB_ORDER_CREATED, ORDERS_QUEUE } from 'src/shared/constants';
 
 @Injectable()
 export class OrdersService {
@@ -61,7 +61,7 @@ export class OrdersService {
 
     const savedOrder = await this.orderRepository.save(order);
     await this.ordersQueue.add(
-      'order.created',
+      JOB_ORDER_CREATED,
       {
         orderId: savedOrder.id,
         userId: savedOrder.userId,

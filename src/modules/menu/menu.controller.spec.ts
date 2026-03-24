@@ -4,6 +4,7 @@ import { MenuController } from './menu.controller';
 import { MenuService } from './menu.service';
 import { Menu } from './entities/menu.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('MenuController', () => {
   let controller: MenuController;

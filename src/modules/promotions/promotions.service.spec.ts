@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { PromotionsService } from './promotions.service';
 import { Promotion } from './entities/promotion.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('PromotionsService', () => {
   let service: PromotionsService;

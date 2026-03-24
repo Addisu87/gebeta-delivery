@@ -4,8 +4,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 import { Notification } from './entities/notification.entity';
-import { NOTIFICATIONS_QUEUE } from '../queue/queue.constants';
+import { NOTIFICATIONS_QUEUE } from 'src/shared/constants';
 import { NotificationsGateway } from './notifications.gateway';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('NotificationsController', () => {
   let controller: NotificationsController;
@@ -18,11 +19,11 @@ describe('NotificationsController', () => {
         { provide: getRepositoryToken(Notification), useValue: {} },
         {
           provide: getQueueToken(NOTIFICATIONS_QUEUE),
-          useValue: { add: jest.fn() },
+          useValue: { add: vi.fn() },
         },
         {
           provide: NotificationsGateway,
-          useValue: { emitNotificationCreated: jest.fn() },
+          useValue: { emitNotificationCreated: vi.fn() },
         },
       ],
     }).compile();

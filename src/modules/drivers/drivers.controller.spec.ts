@@ -4,6 +4,7 @@ import { DriversController } from './drivers.controller';
 import { DriversService } from './drivers.service';
 import { Driver } from './entities/driver.entity';
 import { PhotoService } from '../photo/photo.service';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('DriversController', () => {
   let controller: DriversController;

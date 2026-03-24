@@ -6,7 +6,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { PasswordService } from './password.service';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import type { StringValue } from 'ms';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -34,7 +33,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   controllers: [AuthController],
   providers: [
     AuthService,
-    PasswordService,
     JwtStrategy,
     {
       provide: APP_GUARD,

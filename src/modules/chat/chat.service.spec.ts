@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ChatService } from './chat.service';
 import { Chat } from './entities/chat.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('ChatService', () => {
   let service: ChatService;

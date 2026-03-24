@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import { Chat } from './entities/chat.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('ChatController', () => {
   let controller: ChatController;

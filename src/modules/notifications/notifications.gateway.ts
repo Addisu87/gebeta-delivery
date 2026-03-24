@@ -7,6 +7,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JOB_NOTIFICATION_CREATED } from 'src/shared/constants';
 import { Notification } from './entities/notification.entity';
 
 type SocketJwtPayload = {
@@ -53,10 +54,10 @@ export class NotificationsGateway
     if (notification.recipientEmail) {
       this.server
         .to(this.getUserRoom(notification.recipientEmail))
-        .emit('notification.created', notification);
+        .emit(JOB_NOTIFICATION_CREATED, notification);
       return;
     }
-    this.server.emit('notification.created', notification);
+    this.server.emit(JOB_NOTIFICATION_CREATED, notification);
   }
 
   private extractToken(client: Socket): string | undefined {

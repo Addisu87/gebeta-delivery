@@ -6,11 +6,12 @@ import {
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
-import { PasswordService } from './password.service';
 import type { StringValue } from 'ms';
 import { UserRole } from 'src/shared/enums/role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { User } from '../users/entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { SALT_ROUNDS } from 'src/shared/constants';
 
 type AuthTokens = {
   access_token: string;
@@ -22,7 +23,6 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly passwordService: PasswordService,
   ) {}
 
   async register(createAuthDto: RegisterDto) {
@@ -57,10 +57,7 @@ export class AuthService {
     if (!user?.password) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const isPasswordValid = await this.passwordService.comparePassword(
-      password,
-      user.password,
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -110,9 +107,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user);
 
     await this.usersService.update(user.id, {
-      refreshToken: await this.passwordService.hashPassword(
-        tokens.refresh_token,
-      ),
+      refreshToken: await bcrypt.hash(tokens.refresh_token, SALT_ROUNDS),
     });
 
     return tokens;
@@ -135,7 +130,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const isRefreshTokenValid = await this.passwordService.comparePassword(
+    const isRefreshTokenValid = await bcrypt.compare(
       oldToken,
       user.refreshToken,
     );
@@ -146,9 +141,7 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user);
     await this.usersService.update(user.id, {
-      refreshToken: await this.passwordService.hashPassword(
-        tokens.refresh_token,
-      ),
+      refreshToken: await bcrypt.hash(tokens.refresh_token, SALT_ROUNDS),
     });
 
     return tokens;
@@ -189,7 +182,7 @@ export class AuthService {
         's3cr3t',
     });
 
-    const hashedPassword = await this.passwordService.hashPassword(newPassword);
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
     await this.usersService.update(payload.sub, {
       password: hashedPassword,
       refreshToken: null,
@@ -205,10 +198,7 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const isMatch = await this.passwordService.comparePassword(
-      dto.oldPassword,
-      user.password,
-    );
+    const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Current password is incorrect');
     }
@@ -219,7 +209,7 @@ export class AuthService {
       );
     }
 
-    const hashed = await this.passwordService.hashPassword(dto.newPassword);
+    const hashed = await bcrypt.hash(dto.newPassword, SALT_ROUNDS);
 
     await this.usersService.update(userId, {
       password: hashed,

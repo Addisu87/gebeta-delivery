@@ -6,8 +6,9 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Queue } from 'bullmq';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
-import { NOTIFICATIONS_QUEUE } from '../queue/queue.constants';
+import { JOB_NOTIFICATION_CREATED, NOTIFICATIONS_QUEUE } from 'src/shared/constants';
 import { NotificationsGateway } from './notifications.gateway';
+import { NotificationType } from 'src/shared/enums/notification-type.enum';
 
 @Injectable()
 export class NotificationsService {
@@ -22,11 +23,12 @@ export class NotificationsService {
   async create(createNotificationDto: CreateNotificationDto) {
     const notification = this.notificationRepository.create({
       ...createNotificationDto,
+      type: createNotificationDto.type ?? NotificationType.SYSTEM,
       isRead: createNotificationDto.isRead ?? false,
     });
     const savedNotification = await this.notificationRepository.save(notification);
     await this.notificationsQueue.add(
-      'notification.created',
+      JOB_NOTIFICATION_CREATED,
       {
         notificationId: savedNotification.id,
         title: savedNotification.title,

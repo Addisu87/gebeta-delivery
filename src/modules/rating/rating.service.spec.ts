@@ -4,6 +4,7 @@ import { RatingService } from './rating.service';
 import { Rating } from './entities/rating.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { Review } from '../review/entities/review.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('RatingService', () => {
   let service: RatingService;

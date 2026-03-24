@@ -2,23 +2,19 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
-import { PasswordService } from './password.service';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('AuthService', () => {
   let service: AuthService;
   const usersServiceMock = {
-    create: jest.fn(),
-    findByEmail: jest.fn(),
-    findById: jest.fn(),
-    update: jest.fn(),
+    create: vi.fn(),
+    findByEmail: vi.fn(),
+    findById: vi.fn(),
+    update: vi.fn(),
   };
   const jwtServiceMock = {
-    signAsync: jest.fn(),
-    verifyAsync: jest.fn(),
-  };
-  const passwordServiceMock = {
-    hashPassword: jest.fn(),
-    comparePassword: jest.fn(),
+    signAsync: vi.fn(),
+    verifyAsync: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -32,10 +28,6 @@ describe('AuthService', () => {
         {
           provide: JwtService,
           useValue: jwtServiceMock,
-        },
-        {
-          provide: PasswordService,
-          useValue: passwordServiceMock,
         },
       ],
     }).compile();

@@ -1,3 +1,5 @@
+import { MAX_UPLOAD_SIZE } from 'src/shared/constants';
+
 export type MulterConfig = {
   dest: string;
 };
@@ -8,4 +10,4 @@ export const multerConfig = () => ({
   } satisfies MulterConfig,
 });
 
-export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5 MB
+export { MAX_UPLOAD_SIZE };

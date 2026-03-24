@@ -7,7 +7,7 @@ import { Queue } from 'bullmq';
 import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { Order } from '../orders/entities/order.entity';
-import { PAYMENTS_QUEUE } from '../queue/queue.constants';
+import { JOB_PAYMENT_CREATED, PAYMENTS_QUEUE } from 'src/shared/constants';
 import { PaymentProvider } from 'src/shared/enums/payment-provider.enum';
 import { StripeProvider } from './providers/stripe.provider';
 import { ChapaProvider } from './providers/chapa.provider';
@@ -51,7 +51,7 @@ export class PaymentsService {
     const finalizedPayment = await this.paymentRepository.save(savedPayment);
 
     await this.paymentsQueue.add(
-      'payment.created',
+      JOB_PAYMENT_CREATED,
       {
         paymentId: finalizedPayment.id,
         orderId: finalizedPayment.orderId,

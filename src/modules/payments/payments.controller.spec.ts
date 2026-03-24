@@ -5,9 +5,10 @@ import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 import { Payment } from './entities/payment.entity';
 import { Order } from '../orders/entities/order.entity';
-import { PAYMENTS_QUEUE } from '../queue/queue.constants';
+import { PAYMENTS_QUEUE } from 'src/shared/constants';
 import { StripeProvider } from './providers/stripe.provider';
 import { ChapaProvider } from './providers/chapa.provider';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('PaymentsController', () => {
   let controller: PaymentsController;
@@ -19,7 +20,7 @@ describe('PaymentsController', () => {
         PaymentsService,
         { provide: getRepositoryToken(Payment), useValue: {} },
         { provide: getRepositoryToken(Order), useValue: {} },
-        { provide: getQueueToken(PAYMENTS_QUEUE), useValue: { add: jest.fn() } },
+        { provide: getQueueToken(PAYMENTS_QUEUE), useValue: { add: vi.fn() } },
         { provide: StripeProvider, useValue: {} },
         { provide: ChapaProvider, useValue: {} },
       ],

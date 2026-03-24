@@ -1,7 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { InjectQueue, OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job, Queue } from 'bullmq';
-import { EMAIL_QUEUE, NOTIFICATIONS_QUEUE } from '../queue.constants';
+import {
+  EMAIL_QUEUE,
+  JOB_EMAIL_SEND,
+  JOB_NOTIFICATION_CREATED,
+  NOTIFICATIONS_QUEUE,
+} from 'src/shared/constants';
 
 type NotificationJobPayload = {
   notificationId: string;
@@ -22,7 +27,7 @@ export class NotificationProcessor extends WorkerHost {
   }
 
   async process(job: Job<NotificationJobPayload>) {
-    if (job.name !== 'notification.created') {
+    if (job.name !== JOB_NOTIFICATION_CREATED) {
       return { ignored: true };
     }
 
@@ -30,7 +35,7 @@ export class NotificationProcessor extends WorkerHost {
 
     if (job.data.recipientEmail) {
       await this.emailQueue.add(
-        'email.send',
+        JOB_EMAIL_SEND,
         {
           notificationId: job.data.notificationId,
           to: job.data.recipientEmail,

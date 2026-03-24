@@ -4,19 +4,20 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('AuthController', () => {
   let controller: AuthController;
   const authServiceMock = {
-    register: jest.fn(),
-    login: jest.fn(),
-    refresh: jest.fn(),
-    forgotPassword: jest.fn(),
-    changePassword: jest.fn(),
-    resetPassword: jest.fn(),
-    sendVerification: jest.fn(),
-    verifyEmail: jest.fn(),
-    logout: jest.fn(),
+    register: vi.fn(),
+    login: vi.fn(),
+    refresh: vi.fn(),
+    forgotPassword: vi.fn(),
+    changePassword: vi.fn(),
+    resetPassword: vi.fn(),
+    sendVerification: vi.fn(),
+    verifyEmail: vi.fn(),
+    logout: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -29,15 +30,15 @@ describe('AuthController', () => {
         },
         {
           provide: JwtAuthGuard,
-          useValue: { canActivate: jest.fn().mockReturnValue(true) },
+          useValue: { canActivate: vi.fn().mockReturnValue(true) },
         },
         {
           provide: JwtService,
-          useValue: { verifyAsync: jest.fn() },
+          useValue: { verifyAsync: vi.fn() },
         },
         {
           provide: Reflector,
-          useValue: { getAllAndOverride: jest.fn().mockReturnValue(true) },
+          useValue: { getAllAndOverride: vi.fn().mockReturnValue(true) },
         },
       ],
     }).compile();

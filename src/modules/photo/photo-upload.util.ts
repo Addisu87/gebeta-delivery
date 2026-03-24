@@ -1,7 +1,7 @@
 import { ParseFilePipeBuilder } from '@nestjs/common';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
-import { MAX_UPLOAD_SIZE } from 'src/config/mutler.config';
+import { MAX_UPLOAD_SIZE } from 'src/shared/constants';
 
 const allowedImageMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
 

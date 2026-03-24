@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { Admin } from './entities/admin.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('AdminController', () => {
   let controller: AdminController;

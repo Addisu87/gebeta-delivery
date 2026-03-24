@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { MenuService } from './menu.service';
 import { Menu } from './entities/menu.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('MenuService', () => {
   let service: MenuService;
