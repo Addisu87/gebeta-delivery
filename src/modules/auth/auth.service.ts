@@ -3,14 +3,14 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto';
 import type { StringValue } from 'ms';
+import * as bcrypt from 'bcrypt';
+import { UsersService } from '../users/users.service';
+import { RegisterDto } from './dto/register.dto';
 import { UserRole } from 'src/shared/enums/role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { User } from '../users/entities/user.entity';
-import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/shared/constants';
 
 type AuthTokens = {
@@ -29,8 +29,8 @@ export class AuthService {
     const verificationToken = await this.jwtService.signAsync(
       { email: createAuthDto.email },
       {
-        secret: process.env.JWT_ACCESS_SECRET ?? 'access-secret-for-local-dev',
-        expiresIn: (process.env.JWT_ACCESS_EXPIRATION ?? '30m') as StringValue,
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: process.env.JWT_ACCESS_EXPIRATION as StringValue,
       },
     );
 
@@ -68,11 +68,8 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload);
     const refreshToken = await this.jwtService.signAsync(payload, {
-      secret:
-        process.env.JWT_REFRESH_SECRET ??
-        process.env.JWT_ACCESS_SECRET ??
-        's3cr3t',
-      expiresIn: (process.env.JWT_REFRESH_EXPIRATION ?? '7d') as StringValue,
+      secret: process.env.JWT_REFRESH_SECRET ?? process.env.JWT_ACCESS_SECRET,
+      expiresIn: process.env.JWT_REFRESH_EXPIRATION as StringValue,
     });
 
     return {
@@ -84,9 +81,7 @@ export class AuthService {
   async verifyEmail(token: string) {
     const payload = await this.jwtService.verifyAsync<{ email: string }>(
       token,
-      {
-        secret: process.env.JWT_ACCESS_SECRET ?? 's3cr3t',
-      },
+      { secret: process.env.JWT_ACCESS_SECRET },
     );
     const user = await this.usersService.findByEmail(payload.email);
 
@@ -119,10 +114,7 @@ export class AuthService {
       email: string;
       role: UserRole;
     }>(oldToken, {
-      secret:
-        process.env.JWT_REFRESH_SECRET ??
-        process.env.JWT_ACCESS_SECRET ??
-        's3cr3t',
+      secret: process.env.JWT_REFRESH_SECRET ?? process.env.JWT_ACCESS_SECRET,
     });
     const user = await this.usersService.findById(payload.sub);
 
@@ -134,7 +126,6 @@ export class AuthService {
       oldToken,
       user.refreshToken,
     );
-
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -147,28 +138,18 @@ export class AuthService {
     return tokens;
   }
 
-  private async sendResetLink(email: string) {
-    const user = await this.usersService.findByEmail(email);
-    if (!user) {
-      return;
-    }
-
-    const resetToken = await this.jwtService.signAsync(
-      { sub: user.id },
-      {
-        secret:
-          process.env.JWT_RESET_SECRET ??
-          process.env.JWT_ACCESS_SECRET ??
-          's3cr3t',
-        expiresIn: (process.env.JWT_RESET_EXPIRATION ?? '15m') as StringValue,
-      },
-    );
-
-    console.log(`Reset link: /reset-password?token=${resetToken}`);
-  }
-
   async forgotPassword(email: string) {
-    await this.sendResetLink(email);
+    const user = await this.usersService.findByEmail(email);
+    if (user) {
+      const resetToken = await this.jwtService.signAsync(
+        { sub: user.id },
+        {
+          secret: process.env.JWT_ACCESS_SECRET,
+          expiresIn: process.env.JWT_REFRESH_EXPIRATION as StringValue,
+        },
+      );
+      console.log(`Reset link: /reset-password?token=${resetToken}`);
+    }
     return {
       message: 'If that email exists, a password reset link has been sent',
     };
@@ -176,10 +157,7 @@ export class AuthService {
 
   async resetPassword(token: string, newPassword: string) {
     const payload = await this.jwtService.verifyAsync<{ sub: number }>(token, {
-      secret:
-        process.env.JWT_RESET_SECRET ??
-        process.env.JWT_ACCESS_SECRET ??
-        's3cr3t',
+      secret: process.env.JWT_ACCESS_SECRET,
     });
 
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
@@ -235,8 +213,8 @@ export class AuthService {
     const verificationToken = await this.jwtService.signAsync(
       { email: user.email },
       {
-        secret: process.env.JWT_ACCESS_SECRET ?? 's3cr3t',
-        expiresIn: (process.env.JWT_ACCESS_EXPIRATION ?? '30m') as StringValue,
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: process.env.JWT_ACCESS_EXPIRATION as StringValue,
       },
     );
 

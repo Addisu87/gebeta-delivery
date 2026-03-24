@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -15,17 +14,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   imports: [
     UsersModule,
     JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>(
-          'JWT_ACCESS_SECRET',
-          'access-secret-for-local-dev',
-        ),
+      useFactory: () => ({
+        secret: process.env.JWT_ACCESS_SECRET,
         signOptions: {
-          expiresIn: config.get<string>(
-            'JWT_ACCESS_EXPIRATION',
-            '15m',
-          ) as StringValue,
+          expiresIn: process.env.JWT_ACCESS_EXPIRATION as StringValue,
         },
       }),
     }),

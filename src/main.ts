@@ -38,7 +38,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory);
 
   app.useGlobalFilters(new HttpExceptionFilter(app.get(WinstonLoggerService)));
-  app.useGlobalInterceptors(new LoggingInterceptor(app.get(WinstonLoggerService)));
+  app.useGlobalInterceptors(
+    new LoggingInterceptor(app.get(WinstonLoggerService)),
+  );
   app.useWebSocketAdapter(new SocketIoAdapter(app));
   app.enableCors();
 
