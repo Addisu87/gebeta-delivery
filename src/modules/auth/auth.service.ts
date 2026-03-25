@@ -3,7 +3,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { JwtService } from '@nestjs/jwt';
+import { Queue } from 'bullmq';
 import type { StringValue } from 'ms';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -11,7 +13,7 @@ import { RegisterDto } from './dto/register.dto';
 import { UserRole } from 'src/shared/enums/role.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { User } from '../users/entities/user.entity';
-import { SALT_ROUNDS } from 'src/shared/constants';
+import { EMAIL_QUEUE, JOB_EMAIL_SEND, SALT_ROUNDS } from 'src/shared/constants';
 
 type AuthTokens = {
   access_token: string;
@@ -23,7 +25,13 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    @InjectQueue(EMAIL_QUEUE)
+    private readonly emailQueue: Queue,
   ) {}
+
+  private getBaseUrl(): string {
+    return process.env.APP_URL ?? 'http://localhost:3000';
+  }
 
   async register(createAuthDto: RegisterDto) {
     const verificationToken = await this.jwtService.signAsync(
@@ -44,11 +52,23 @@ export class AuthService {
       verificationToken,
     });
 
-    console.log(`Verify email: /verify-email?token=${verificationToken}`);
+    const verifyUrl = `${this.getBaseUrl()}/verify-email?token=${verificationToken}`;
+    await this.emailQueue.add(
+      JOB_EMAIL_SEND,
+      {
+        notificationId: `auth-verify:${user.id}`,
+        to: user.email,
+        subject: 'Verify your email',
+        body: `Click to verify: ${verifyUrl}`,
+      },
+      { jobId: `auth-verify:${user.id}` },
+    );
+
+    const { password, refreshToken, verificationToken: _verificationToken, ...safeUser } = user;
 
     return {
       message: 'Registration successful',
-      user: this.sanitizeUser(user),
+      user: safeUser,
     };
   }
 
@@ -85,7 +105,7 @@ export class AuthService {
     );
     const user = await this.usersService.findByEmail(payload.email);
 
-    if (!user || user.verificationToken !== token) {
+    if (user?.verificationToken !== token) {
       throw new UnauthorizedException('Invalid verification token');
     }
 
@@ -104,7 +124,6 @@ export class AuthService {
     await this.usersService.update(user.id, {
       refreshToken: await bcrypt.hash(tokens.refresh_token, SALT_ROUNDS),
     });
-
     return tokens;
   }
 
@@ -142,13 +161,23 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
     if (user) {
       const resetToken = await this.jwtService.signAsync(
-        { sub: user.id },
+        { sub: user.id, purpose: 'password_reset' },
         {
           secret: process.env.JWT_ACCESS_SECRET,
           expiresIn: process.env.JWT_REFRESH_EXPIRATION as StringValue,
         },
       );
-      console.log(`Reset link: /reset-password?token=${resetToken}`);
+      const resetUrl = `${this.getBaseUrl()}/forgot-password?token=${resetToken}`;
+      await this.emailQueue.add(
+        JOB_EMAIL_SEND,
+        {
+          notificationId: `auth-reset:${user.id}`,
+          to: user.email,
+          subject: 'Reset your password',
+          body: `Click to reset your password: ${resetUrl}`,
+        },
+        { jobId: `auth-reset:${user.id}` },
+      );
     }
     return {
       message: 'If that email exists, a password reset link has been sent',
@@ -156,9 +185,14 @@ export class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string) {
-    const payload = await this.jwtService.verifyAsync<{ sub: number }>(token, {
-      secret: process.env.JWT_ACCESS_SECRET,
-    });
+    const payload = await this.jwtService.verifyAsync<{
+      sub: number;
+      purpose: string;
+    }>(token, { secret: process.env.JWT_ACCESS_SECRET });
+
+    if (payload.purpose !== 'password_reset') {
+      throw new UnauthorizedException('Invalid password reset token');
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
     await this.usersService.update(payload.sub, {
@@ -219,7 +253,18 @@ export class AuthService {
     );
 
     await this.usersService.update(user.id, { verificationToken });
-    console.log(`Verify email: /verify-email?token=${verificationToken}`);
+
+    const verifyUrl = `${this.getBaseUrl()}/verify-email?token=${verificationToken}`;
+    await this.emailQueue.add(
+      JOB_EMAIL_SEND,
+      {
+        notificationId: `auth-verify:${user.id}:${Date.now()}`,
+        to: user.email,
+        subject: 'Verify your email',
+        body: `Click to verify: ${verifyUrl}`,
+      },
+      { jobId: `auth-verify:${user.id}:${Date.now()}` },
+    );
 
     return {
       message: 'If that email exists, a verification link has been sent',
@@ -229,10 +274,5 @@ export class AuthService {
   async logout(id: number) {
     await this.usersService.update(id, { refreshToken: null });
     return { message: 'Logged out successfully' };
-  }
-
-  private sanitizeUser(user: User) {
-    const { password, refreshToken, verificationToken, ...safeUser } = user;
-    return safeUser;
   }
 }

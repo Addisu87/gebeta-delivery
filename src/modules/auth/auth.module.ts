@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
@@ -9,10 +10,12 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import type { StringValue } from 'ms';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { EMAIL_QUEUE } from 'src/shared/constants';
 
 @Module({
   imports: [
     UsersModule,
+    BullModule.registerQueue({ name: EMAIL_QUEUE }),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.JWT_ACCESS_SECRET,
