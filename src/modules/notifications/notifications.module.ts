@@ -6,10 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
 import { Notification } from './entities/notification.entity';
-import { EMAIL_QUEUE, NOTIFICATIONS_QUEUE } from 'src/shared/constants';
-import { NotificationProcessor } from '../queue/processors/notification.processor';
-import { EmailProcessor } from '../queue/processors/email.processor';
-import { MailtrapEmailService } from '../queue/email/mailtrap-email.service';
+import { NOTIFICATIONS_QUEUE } from 'src/shared/constants';
 import { NotificationsGateway } from './notifications.gateway';
 import type { StringValue } from 'ms';
 
@@ -34,16 +31,12 @@ import type { StringValue } from 'ms';
     }),
     BullModule.registerQueue(
       { name: NOTIFICATIONS_QUEUE },
-      { name: EMAIL_QUEUE },
     ),
   ],
   controllers: [NotificationsController],
   providers: [
     NotificationsService,
     NotificationsGateway,
-    NotificationProcessor,
-    EmailProcessor,
-    MailtrapEmailService,
   ],
 })
 export class NotificationsModule {}

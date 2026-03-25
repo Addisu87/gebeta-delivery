@@ -25,6 +25,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { MapsModule } from './modules/maps/maps.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { EmailModule } from './modules/email/email.module';
 import { SearchModule } from './modules/search/search.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ChatModule } from './modules/chat/chat.module';
@@ -62,6 +63,7 @@ import { RequestValidationPipe } from './common/pipes/request-validation.pipe';
     PromotionsModule,
     MapsModule,
     NotificationsModule,
+    EmailModule,
     SearchModule,
     AnalyticsModule,
     ChatModule,

@@ -4,16 +4,17 @@ import { Job } from 'bullmq';
 import { EMAIL_QUEUE, JOB_EMAIL_SEND } from 'src/shared/constants';
 import { MailtrapEmailService } from '../email/mailtrap-email.service';
 
-type EmailJobPayload = {
-  notificationId: string;
+// Delivery step: send the email via Mailtrap.
+type EmailSendJobPayload = {
+  category: string;
   to: string;
   subject: string;
   body: string;
 };
 
 @Processor(EMAIL_QUEUE)
-export class EmailProcessor extends WorkerHost {
-  private readonly logger = new Logger(EmailProcessor.name);
+export class EmailDeliveryProcessor extends WorkerHost {
+  private readonly logger = new Logger(EmailDeliveryProcessor.name);
 
   constructor(
     private readonly mailtrapEmailService: MailtrapEmailService,
@@ -21,7 +22,7 @@ export class EmailProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<EmailJobPayload>) {
+  async process(job: Job<EmailSendJobPayload>) {
     if (job.name !== JOB_EMAIL_SEND) {
       return { ignored: true };
     }
@@ -30,17 +31,15 @@ export class EmailProcessor extends WorkerHost {
       to: job.data.to,
       subject: job.data.subject,
       body: job.data.body,
-      category: job.data.notificationId,
+      category: job.data.category,
     });
 
-    this.logger.log(
-      `Email sent via mailtrap to=${job.data.to} notification=${job.data.notificationId}`,
-    );
+    this.logger.log(`Email delivered via mailtrap to=${job.data.to}`);
     return { delivered: true };
   }
 
   @OnWorkerEvent('failed')
-  onFailed(job: Job, error: Error) {
+  onFailed(job: Job<EmailSendJobPayload>, error: Error) {
     this.logger.error(
       `Email job failed id=${job.id} name=${job.name}`,
       error.stack,

@@ -8,7 +8,8 @@ import {
   NOTIFICATIONS_QUEUE,
 } from 'src/shared/constants';
 
-type NotificationJobPayload = {
+// Fan-out step: take a persisted notification event and enqueue an email delivery job.
+type EmailFanoutJobPayload = {
   notificationId: string;
   title: string;
   message: string;
@@ -16,28 +17,30 @@ type NotificationJobPayload = {
 };
 
 @Processor(NOTIFICATIONS_QUEUE)
-export class NotificationProcessor extends WorkerHost {
-  private readonly logger = new Logger(NotificationProcessor.name);
+export class EmailFanoutProcessor extends WorkerHost {
+  private readonly logger = new Logger(EmailFanoutProcessor.name);
 
   constructor(
     @InjectQueue(EMAIL_QUEUE)
-    private readonly emailQueue: Queue,
+    private readonly emailDeliveryQueue: Queue,
   ) {
     super();
   }
 
-  async process(job: Job<NotificationJobPayload>) {
+  async process(job: Job<EmailFanoutJobPayload>) {
     if (job.name !== JOB_NOTIFICATION_CREATED) {
       return { ignored: true };
     }
 
-    this.logger.log(`Processing notification.created id=${job.data.notificationId}`);
+    this.logger.log(
+      `Email fan-out created id=${job.data.notificationId}`,
+    );
 
     if (job.data.recipientEmail) {
-      await this.emailQueue.add(
+      await this.emailDeliveryQueue.add(
         JOB_EMAIL_SEND,
         {
-          notificationId: job.data.notificationId,
+          category: job.data.notificationId,
           to: job.data.recipientEmail,
           subject: job.data.title,
           body: job.data.message,
@@ -52,7 +55,7 @@ export class NotificationProcessor extends WorkerHost {
   @OnWorkerEvent('failed')
   onFailed(job: Job, error: Error) {
     this.logger.error(
-      `Notification job failed id=${job.id} name=${job.name}`,
+      `Email fan-out job failed id=${job.id} name=${job.name}`,
       error.stack,
     );
   }
