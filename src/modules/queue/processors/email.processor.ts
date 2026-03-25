@@ -1,10 +1,8 @@
 import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { EMAIL_QUEUE, JOB_EMAIL_SEND } from 'src/shared/constants';
-import { SendgridEmailService } from '../email/sendgrid-email.service';
-import { SmtpEmailService } from '../email/smtp-email.service';
+import { MailtrapEmailService } from '../email/mailtrap-email.service';
 
 type EmailJobPayload = {
   notificationId: string;
@@ -18,9 +16,7 @@ export class EmailProcessor extends WorkerHost {
   private readonly logger = new Logger(EmailProcessor.name);
 
   constructor(
-    private readonly configService: ConfigService,
-    private readonly sendgridEmailService: SendgridEmailService,
-    private readonly smtpEmailService: SmtpEmailService,
+    private readonly mailtrapEmailService: MailtrapEmailService,
   ) {
     super();
   }
@@ -30,27 +26,15 @@ export class EmailProcessor extends WorkerHost {
       return { ignored: true };
     }
 
-    const provider = this.configService.get<string>('email.provider', 'mailtrap');
-    if (provider === 'sendgrid') {
-      await this.sendgridEmailService.send({
-        to: job.data.to,
-        subject: job.data.subject,
-        body: job.data.body,
-      });
-    } else if (provider === 'smtp' || provider === 'mailtrap') {
-      await this.smtpEmailService.send({
-        to: job.data.to,
-        subject: job.data.subject,
-        body: job.data.body,
-      });
-    } else {
-      throw new Error(
-        `Unsupported EMAIL_PROVIDER=${provider}. Supported: mailtrap, smtp, sendgrid`,
-      );
-    }
+    await this.mailtrapEmailService.send({
+      to: job.data.to,
+      subject: job.data.subject,
+      body: job.data.body,
+      category: job.data.notificationId,
+    });
 
     this.logger.log(
-      `Email sent via ${provider} to=${job.data.to} notification=${job.data.notificationId}`,
+      `Email sent via mailtrap to=${job.data.to} notification=${job.data.notificationId}`,
     );
     return { delivered: true };
   }

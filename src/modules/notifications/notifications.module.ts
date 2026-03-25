@@ -9,8 +9,7 @@ import { Notification } from './entities/notification.entity';
 import { EMAIL_QUEUE, NOTIFICATIONS_QUEUE } from 'src/shared/constants';
 import { NotificationProcessor } from '../queue/processors/notification.processor';
 import { EmailProcessor } from '../queue/processors/email.processor';
-import { SendgridEmailService } from '../queue/email/sendgrid-email.service';
-import { SmtpEmailService } from '../queue/email/smtp-email.service';
+import { MailtrapEmailService } from '../queue/email/mailtrap-email.service';
 import { NotificationsGateway } from './notifications.gateway';
 import type { StringValue } from 'ms';
 
@@ -44,8 +43,7 @@ import type { StringValue } from 'ms';
     NotificationsGateway,
     NotificationProcessor,
     EmailProcessor,
-    SendgridEmailService,
-    SmtpEmailService,
+    MailtrapEmailService,
   ],
 })
 export class NotificationsModule {}

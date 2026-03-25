@@ -83,12 +83,12 @@ importers:
       class-validator:
         specifier: ^0.15.1
         version: 0.15.1
+      mailtrap:
+        specifier: ^4.5.1
+        version: 4.5.1
       multer:
         specifier: ^2.1.1
         version: 2.1.1
-      nodemailer:
-        specifier: ^8.0.3
-        version: 8.0.3
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -2689,6 +2689,18 @@ packages:
   magicast@0.5.2:
     resolution: {integrity: sha512-E3ZJh4J3S9KfwdjZhe2afj6R9lGIN5Pher1pF39UGrXRqq/VDaGVIGN13BjHd2u8B61hArAGOnso7nBOouW3TQ==}
 
+  mailtrap@4.5.1:
+    resolution: {integrity: sha512-ABMvAk41q9iteM3Iga9ZaNrR/3RppGEPcYihihv6qnwvmFcE16mKcXSbuIRl3V5tRR5ZRQ4+BuUeZO2Y9xuxRA==}
+    engines: {node: '>=16.20.1', yarn: '>=1.22.17'}
+    peerDependencies:
+      '@types/nodemailer': ^6.4.9
+      nodemailer: ^7.0.7
+    peerDependenciesMeta:
+      '@types/nodemailer':
+        optional: true
+      nodemailer:
+        optional: true
+
   make-dir@4.0.0:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
     engines: {node: '>=10'}
@@ -2843,10 +2855,6 @@ packages:
 
   node-releases@2.0.36:
     resolution: {integrity: sha512-TdC8FSgHz8Mwtw9g5L4gR/Sh9XhSP/0DEkQxfEFXOpiul5IiHgHan2VhYYb6agDSfp4KuvltmGApc8HMgUrIkA==}
-
-  nodemailer@8.0.3:
-    resolution: {integrity: sha512-JQNBqvK+bj3NMhUFR3wmCl3SYcOeMotDiwDBvIoCuQdF0PvlIY0BH+FJ2CG7u4cXKPChplE78oowlH/Otsc4ZQ==}
-    engines: {node: '>=6.0.0'}
 
   notepack.io@3.0.1:
     resolution: {integrity: sha512-TKC/8zH5pXIAMVQio2TvVDTtPRX+DJPHDqjRbxogtFiByHyzKmy96RA0JtCQJ+WouyyL4A10xomQzgbUT+1jCg==}
@@ -6272,6 +6280,13 @@ snapshots:
       '@babel/types': 7.29.0
       source-map-js: 1.2.1
 
+  mailtrap@4.5.1:
+    dependencies:
+      axios: 1.13.6
+      qs: 6.15.0
+    transitivePeerDependencies:
+      - debug
+
   make-dir@4.0.0:
     dependencies:
       semver: 7.7.4
@@ -6392,8 +6407,6 @@ snapshots:
   node-gyp-build@4.8.4: {}
 
   node-releases@2.0.36: {}
-
-  nodemailer@8.0.3: {}
 
   notepack.io@3.0.1: {}
 
