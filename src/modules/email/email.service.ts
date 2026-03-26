@@ -9,7 +9,7 @@ type SendEmailInput = {
 };
 
 @Injectable()
-export class MailtrapEmailService {
+export class EmailService {
   async send(input: SendEmailInput) {
     const token = process.env.MAILTRAP_TOKEN;
     const fromEmail = process.env.MAILTRAP_FROM_EMAIL;
@@ -35,4 +35,3 @@ export class MailtrapEmailService {
     });
   }
 }
-

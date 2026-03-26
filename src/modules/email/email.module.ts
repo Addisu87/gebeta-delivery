@@ -6,7 +6,7 @@ import type { StringValue } from 'ms';
 import { EMAIL_QUEUE, NOTIFICATIONS_QUEUE } from 'src/shared/constants';
 import { EmailFanoutProcessor } from '../queue/processors/email-fanout.processor';
 import { EmailDeliveryProcessor } from '../queue/processors/email-delivery.processor';
-import { MailtrapEmailService } from '../queue/email/mailtrap-email.service';
+import { EmailService } from './email.service';
 
 @Module({
   imports: [
@@ -25,11 +25,6 @@ import { MailtrapEmailService } from '../queue/email/mailtrap-email.service';
       { name: EMAIL_QUEUE },
     ),
   ],
-  providers: [
-    EmailFanoutProcessor,
-    EmailDeliveryProcessor,
-    MailtrapEmailService,
-  ],
+  providers: [EmailFanoutProcessor, EmailDeliveryProcessor, EmailService],
 })
 export class EmailModule {}
-
