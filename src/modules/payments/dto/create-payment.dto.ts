@@ -1,4 +1,12 @@
-import { IsEmail, IsEnum, IsOptional, IsNumber, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsNumber,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
 import { PaymentMethod } from 'src/shared/enums/payment-method.enum';
 import { PaymentStatus } from 'src/shared/enums/payment-status.enum';
 import { PaymentProvider } from 'src/shared/enums/payment-provider.enum';

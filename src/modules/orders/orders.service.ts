@@ -36,27 +36,21 @@ export class OrdersService {
       createOrderDto.userId,
       createOrderDto.restaurantId,
       createOrderDto.deliveryId,
-      createOrderDto.promotionIds,
     );
-
-    const promotions = createOrderDto.promotionIds?.length
-      ? await this.promotionRepository.find({
-          where: createOrderDto.promotionIds.map((id) => ({ id })),
-        })
-      : [];
 
     const totalAmount = calculateDiscountedAmount(
       createOrderDto.totalAmount,
-      promotions.filter((promotion) => promotion.isActive).map((p) => p.discountPercent),
+      [],
     );
 
     const order = this.orderRepository.create({
       totalAmount,
       status: createOrderDto.status ?? OrderStatus.PENDING,
       userId: createOrderDto.userId,
+      phoneNumber: createOrderDto.phoneNumber,
       restaurantId: createOrderDto.restaurantId,
       deliveryId: createOrderDto.deliveryId,
-      promotions,
+      promotions: [],
     });
 
     const savedOrder = await this.orderRepository.save(order);
@@ -120,6 +114,7 @@ export class OrdersService {
       totalAmount: recalculatedAmount,
       status: updateOrderDto.status ?? order.status,
       userId: updateOrderDto.userId ?? order.userId,
+      phoneNumber: updateOrderDto.phoneNumber ?? order.phoneNumber,
       restaurantId: updateOrderDto.restaurantId ?? order.restaurantId,
       deliveryId:
         updateOrderDto.deliveryId !== undefined

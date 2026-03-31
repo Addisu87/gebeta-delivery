@@ -1,12 +1,4 @@
-import {
-  IsArray,
-  IsEnum,
-  IsInt,
-  IsNumber,
-  IsOptional,
-  IsUUID,
-  Min,
-} from 'class-validator';
+import { IsEnum, IsInt, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { OrderStatus } from 'src/shared/enums/order-status.enum';
 
 export class CreateOrderDto {
@@ -21,15 +13,14 @@ export class CreateOrderDto {
   @IsInt()
   userId: number;
 
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
   @IsUUID()
   restaurantId: string;
 
   @IsOptional()
   @IsUUID()
   deliveryId?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsUUID('4', { each: true })
-  promotionIds?: string[];
 }

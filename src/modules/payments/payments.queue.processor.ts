@@ -20,7 +20,7 @@ export class PaymentsQueueProcessor extends WorkerHost {
       this.logger.log(
         `Processing ${JOB_PAYMENT_CREATED} for paymentId=${job.data.paymentId}`,
       );
-      return { processed: true };
+      return await Promise.resolve({ processed: true });
     }
     return { ignored: true };
   }

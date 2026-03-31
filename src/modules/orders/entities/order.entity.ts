@@ -27,6 +27,9 @@ export class Order {
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
 
+  @Column({ nullable: true })
+  phoneNumber?: string;
+
   @Column()
   userId: number;
 

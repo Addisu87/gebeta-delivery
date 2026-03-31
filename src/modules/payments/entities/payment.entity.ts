@@ -26,7 +26,11 @@ export class Payment {
   @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.CASH })
   method: PaymentMethod;
 
-  @Column({ type: 'enum', enum: PaymentProvider, default: PaymentProvider.STRIPE })
+  @Column({
+    type: 'enum',
+    enum: PaymentProvider,
+    default: PaymentProvider.STRIPE,
+  })
   provider: PaymentProvider;
 
   @Column({ default: 'ETB' })
