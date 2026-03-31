@@ -7,7 +7,9 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
@@ -21,11 +23,15 @@ export class RatingController {
     return this.ratingService.create(createRatingDto);
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get()
   findAll() {
     return this.ratingService.findAll();
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.ratingService.findOne(id);

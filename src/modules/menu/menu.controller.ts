@@ -7,7 +7,9 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { MenuService } from './menu.service';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
@@ -21,11 +23,15 @@ export class MenuController {
     return this.menuService.create(createMenuDto);
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get()
   findAll() {
     return this.menuService.findAll();
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.menuService.findOne(id);

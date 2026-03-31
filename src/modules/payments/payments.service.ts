@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -78,7 +82,8 @@ export class PaymentsService {
       where: { id },
       relations: ['order'],
     });
-    if (!payment) throw new NotFoundException(`Payment with id ${id} not found`);
+    if (!payment)
+      throw new NotFoundException(`Payment with id ${id} not found`);
     return payment;
   }
 
@@ -131,8 +136,11 @@ export class PaymentsService {
   }
 
   private async ensureOrderExists(orderId: string) {
-    const order = await this.orderRepository.findOne({ where: { id: orderId } });
-    if (!order) throw new NotFoundException(`Order with id ${orderId} not found`);
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+    });
+    if (!order)
+      throw new NotFoundException(`Order with id ${orderId} not found`);
   }
 
   private resolveProvider(provider: PaymentProvider) {

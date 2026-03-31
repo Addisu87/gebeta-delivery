@@ -7,7 +7,9 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { PromotionsService } from './promotions.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
@@ -21,11 +23,15 @@ export class PromotionsController {
     return this.promotionsService.create(createPromotionDto);
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get()
   findAll() {
     return this.promotionsService.findAll();
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.promotionsService.findOne(id);

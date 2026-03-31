@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
@@ -28,11 +29,15 @@ export class RestaurantsController {
     return this.restaurantsService.create(createRestaurantDto);
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get()
   findAll() {
     return this.restaurantsService.findAll();
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.restaurantsService.findOne(id);

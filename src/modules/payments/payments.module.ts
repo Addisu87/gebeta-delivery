@@ -16,6 +16,11 @@ import { ChapaProvider } from './providers/chapa.provider';
     BullModule.registerQueue({ name: PAYMENTS_QUEUE }),
   ],
   controllers: [PaymentsController],
-  providers: [PaymentsService, PaymentsQueueProcessor, StripeProvider, ChapaProvider],
+  providers: [
+    PaymentsService,
+    PaymentsQueueProcessor,
+    StripeProvider,
+    ChapaProvider,
+  ],
 })
 export class PaymentsModule {}

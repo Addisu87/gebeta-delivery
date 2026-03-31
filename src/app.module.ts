@@ -6,8 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './config/database.module';
 import { configuration } from './config/configuration';
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
-import { CacheInterceptor } from '@nestjs/cache-manager';
+import { APP_PIPE } from '@nestjs/core';
 import { UsersModule } from './modules/users/users.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -88,10 +87,6 @@ import { RequestValidationPipe } from './common/pipes/request-validation.pipe';
     {
       provide: APP_PIPE,
       useClass: RequestValidationPipe,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
     },
   ],
 })

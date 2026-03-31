@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { EMAIL_QUEUE, JOB_EMAIL_SEND } from 'src/shared/constants';
-import { MailtrapEmailService } from '../../email/email.service';
+import { EmailService } from '../../email/email.service';
 
 // Delivery step: send the email via Mailtrap.
 type EmailSendJobPayload = {
@@ -16,7 +16,7 @@ type EmailSendJobPayload = {
 export class EmailDeliveryProcessor extends WorkerHost {
   private readonly logger = new Logger(EmailDeliveryProcessor.name);
 
-  constructor(private readonly mailtrapEmailService: MailtrapEmailService) {
+  constructor(private readonly emailService: EmailService) {
     super();
   }
 
@@ -25,7 +25,7 @@ export class EmailDeliveryProcessor extends WorkerHost {
       return { ignored: true };
     }
 
-    await this.mailtrapEmailService.send({
+    await this.emailService.send({
       to: job.data.to,
       subject: job.data.subject,
       body: job.data.body,
