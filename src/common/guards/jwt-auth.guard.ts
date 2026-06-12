@@ -30,7 +30,7 @@ export class JwtAuthGuard implements CanActivate {
     const token = request.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Authorization token is missing');
     }
 
     try {
@@ -41,7 +41,7 @@ export class JwtAuthGuard implements CanActivate {
       (request as Request & { user: typeof payload }).user = payload;
       return true;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid authorization token');
     }
   }
 }

@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
-import { Repository, FindOptionsRelations } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { calculateAverage } from 'src/common/utils/price.util';
@@ -34,11 +34,7 @@ export class ReviewService {
 
   findAll() {
     return this.reviewRepository.find({
-      relations: [
-        'restaurant',
-        'user',
-        'ratings',
-      ] as unknown as FindOptionsRelations<Review>,
+      relations: { restaurant: true, user: true, ratings: true },
       order: { createdAt: 'DESC' },
     });
   }
@@ -46,11 +42,7 @@ export class ReviewService {
   async findOne(id: string) {
     const review = await this.reviewRepository.findOne({
       where: { id },
-      relations: [
-        'restaurant',
-        'user',
-        'ratings',
-      ] as unknown as FindOptionsRelations<Review>,
+      relations: { restaurant: true, user: true, ratings: true },
     });
     if (!review) {
       throw new NotFoundException(`Review with id ${id} not found`);
@@ -97,7 +89,7 @@ export class ReviewService {
   private async updateRestaurantAverage(restaurantId: string) {
     const restaurant = await this.restaurantRepository.findOne({
       where: { id: restaurantId },
-      relations: ['ratings'] as unknown as FindOptionsRelations<Restaurant>,
+      relations: { ratings: true },
     });
 
     if (!restaurant) {

@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   OneToOne,
@@ -57,6 +58,7 @@ export class Order {
   payment?: Payment;
 
   @ManyToMany(() => Promotion, (promotion) => promotion.orders)
+  @JoinTable()
   promotions: Promotion[];
 
   @CreateDateColumn()

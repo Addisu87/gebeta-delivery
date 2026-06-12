@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Queue } from 'bullmq';
-import { Repository, FindOptionsRelations } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
@@ -69,13 +69,13 @@ export class OrdersService {
 
   findAll() {
     return this.orderRepository.find({
-      relations: [
-        'user',
-        'restaurant',
-        'delivery',
-        'payment',
-        'promotions',
-      ] as unknown as FindOptionsRelations<Order>,
+      relations: {
+        user: true,
+        restaurant: true,
+        delivery: true,
+        payment: true,
+        promotions: true,
+      },
       order: { createdAt: 'DESC' },
     });
   }
@@ -83,13 +83,13 @@ export class OrdersService {
   async findOne(id: string) {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: [
-        'user',
-        'restaurant',
-        'delivery',
-        'payment',
-        'promotions',
-      ] as unknown as FindOptionsRelations<Order>,
+      relations: {
+        user: true,
+        restaurant: true,
+        delivery: true,
+        payment: true,
+        promotions: true,
+      },
     });
     if (!order) throw new NotFoundException(`Order with id ${id} not found`);
     return order;
