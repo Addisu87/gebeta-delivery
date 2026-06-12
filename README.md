@@ -21,21 +21,27 @@ Backend API for Gebeta Delivery built with NestJS, TypeORM, PostgreSQL, Redis, B
 
 ## Local Development
 
-1) Install dependencies:
+1. Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-2) Configure environment variables in `.env` (database, redis, jwt, email).
+2. Configure environment variables in `.env` (database, redis, jwt, email).
 
-3) Run in development mode:
+3. Run in development mode:
 
 ```bash
 pnpm run start:dev
 ```
 
 API runs on `http://localhost:3000` by default, with Swagger at `http://localhost:3000/api`.
+
+4. Redis start
+
+```bash
+brew services start redis
+```
 
 ## Email Configuration
 
@@ -68,6 +74,7 @@ docker compose up --build
 ```
 
 This starts:
+
 - `app` (NestJS API)
 - `postgres` (PostgreSQL 16)
 - `redis` (Redis 7)
@@ -77,12 +84,14 @@ This starts:
 Workflow file: `.github/workflows/ci-cd.yml`
 
 On pull requests and main pushes:
+
 - Install dependencies with pnpm
 - Build (`pnpm run build`)
 - Lint (`pnpm run lint`)
 - Test (`pnpm run test -- --runInBand`)
 
 On `main` push only:
+
 - Build and push Docker image to GHCR
   - `ghcr.io/<owner>/<repo>:latest`
   - `ghcr.io/<owner>/<repo>:<commit-sha>`
