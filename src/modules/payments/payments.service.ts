@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { Queue } from 'bullmq';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { Order } from '../orders/entities/order.entity';
 import { JOB_PAYMENT_CREATED, PAYMENTS_QUEUE } from 'src/shared/constants';
@@ -72,7 +72,7 @@ export class PaymentsService {
 
   findAll() {
     return this.paymentRepository.find({
-      relations: ['order'],
+      relations: ['order'] as unknown as FindOptionsRelations<Payment>,
       order: { createdAt: 'DESC' },
     });
   }
@@ -80,7 +80,7 @@ export class PaymentsService {
   async findOne(id: string) {
     const payment = await this.paymentRepository.findOne({
       where: { id },
-      relations: ['order'],
+      relations: ['order'] as unknown as FindOptionsRelations<Payment>,
     });
     if (!payment)
       throw new NotFoundException(`Payment with id ${id} not found`);

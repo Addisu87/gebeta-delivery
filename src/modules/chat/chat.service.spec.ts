@@ -9,7 +9,10 @@ describe('ChatService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ChatService, { provide: getRepositoryToken(Chat), useValue: {} }],
+      providers: [
+        ChatService,
+        { provide: getRepositoryToken(Chat), useValue: {} },
+      ],
     }).compile();
 
     service = module.get<ChatService>(ChatService);

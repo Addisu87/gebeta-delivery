@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { Restaurant } from './entities/restaurant.entity';
 import { PhotoService } from '../photo/photo.service';
 
@@ -26,7 +26,10 @@ export class RestaurantsService {
 
   findAll() {
     return this.restaurantRepository.find({
-      relations: ['reviews', 'ratings'],
+      relations: [
+        'reviews',
+        'ratings',
+      ] as unknown as FindOptionsRelations<Restaurant>,
       order: { createdAt: 'DESC' },
     });
   }
@@ -34,7 +37,10 @@ export class RestaurantsService {
   async findOne(id: string) {
     const restaurant = await this.restaurantRepository.findOne({
       where: { id },
-      relations: ['reviews', 'ratings'],
+      relations: [
+        'reviews',
+        'ratings',
+      ] as unknown as FindOptionsRelations<Restaurant>,
     });
     if (!restaurant) {
       throw new NotFoundException(`Restaurant with id ${id} not found`);
@@ -50,7 +56,10 @@ export class RestaurantsService {
 
   async addPhoto(id: string, photoPath: string) {
     const restaurant = await this.findOne(id);
-    restaurant.photos = this.photoService.appendPhoto(restaurant.photos, photoPath);
+    restaurant.photos = this.photoService.appendPhoto(
+      restaurant.photos,
+      photoPath,
+    );
     return this.restaurantRepository.save(restaurant);
   }
 

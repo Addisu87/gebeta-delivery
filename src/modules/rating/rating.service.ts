@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { Rating } from './entities/rating.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { Review } from '../review/entities/review.entity';
@@ -33,7 +33,11 @@ export class RatingService {
 
   findAll() {
     return this.ratingRepository.find({
-      relations: ['restaurant', 'user', 'review'],
+      relations: [
+        'restaurant',
+        'user',
+        'review',
+      ] as unknown as FindOptionsRelations<Rating>,
       order: { createdAt: 'DESC' },
     });
   }
@@ -41,7 +45,11 @@ export class RatingService {
   async findOne(id: string) {
     const rating = await this.ratingRepository.findOne({
       where: { id },
-      relations: ['restaurant', 'user', 'review'],
+      relations: [
+        'restaurant',
+        'user',
+        'review',
+      ] as unknown as FindOptionsRelations<Rating>,
     });
     if (!rating) {
       throw new NotFoundException(`Rating with id ${id} not found`);
@@ -75,18 +83,25 @@ export class RatingService {
     return { message: 'Rating removed successfully' };
   }
 
-  private async ensureReferencesExist(restaurantId?: string, reviewId?: string) {
+  private async ensureReferencesExist(
+    restaurantId?: string,
+    reviewId?: string,
+  ) {
     if (restaurantId) {
       const restaurant = await this.restaurantRepository.findOne({
         where: { id: restaurantId },
       });
       if (!restaurant) {
-        throw new NotFoundException(`Restaurant with id ${restaurantId} not found`);
+        throw new NotFoundException(
+          `Restaurant with id ${restaurantId} not found`,
+        );
       }
     }
 
     if (reviewId) {
-      const review = await this.reviewRepository.findOne({ where: { id: reviewId } });
+      const review = await this.reviewRepository.findOne({
+        where: { id: reviewId },
+      });
       if (!review) {
         throw new NotFoundException(`Review with id ${reviewId} not found`);
       }
@@ -96,7 +111,7 @@ export class RatingService {
   private async updateRestaurantAverage(restaurantId: string) {
     const restaurant = await this.restaurantRepository.findOne({
       where: { id: restaurantId },
-      relations: ['ratings'],
+      relations: ['ratings'] as unknown as FindOptionsRelations<Restaurant>,
     });
 
     if (!restaurant) {

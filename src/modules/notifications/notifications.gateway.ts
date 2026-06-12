@@ -36,7 +36,8 @@ export class NotificationsGateway
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<SocketJwtPayload>(token);
+      const payload =
+        await this.jwtService.verifyAsync<SocketJwtPayload>(token);
       const room = this.getUserRoom(payload.email);
       await client.join(room);
       this.logger.log(`Client connected to notifications gateway room=${room}`);

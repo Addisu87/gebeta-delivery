@@ -16,7 +16,9 @@ export class OrdersQueueProcessor extends WorkerHost {
 
   async process(job: Job<OrderJobPayload>) {
     if (job.name === JOB_ORDER_CREATED) {
-      this.logger.log(`Processing ${JOB_ORDER_CREATED} for orderId=${job.data.orderId}`);
+      this.logger.log(
+        `Processing ${JOB_ORDER_CREATED} for orderId=${job.data.orderId}`,
+      );
       return { processed: true };
     }
     return { ignored: true };
@@ -24,6 +26,9 @@ export class OrdersQueueProcessor extends WorkerHost {
 
   @OnWorkerEvent('failed')
   onFailed(job: Job, error: Error) {
-    this.logger.error(`Order job failed id=${job.id} name=${job.name}`, error.stack);
+    this.logger.error(
+      `Order job failed id=${job.id} name=${job.name}`,
+      error.stack,
+    );
   }
 }

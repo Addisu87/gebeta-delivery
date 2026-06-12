@@ -23,7 +23,11 @@ export function imageUploadOptions(folder: string) {
   return {
     storage: diskStorage({
       destination: `${process.env.MULTER_DEST ?? './uploads'}/${folder}`,
-      filename: (_req: Express.Request, file: Express.Multer.File, callback) => {
+      filename: (
+        _req: Express.Request,
+        file: Express.Multer.File,
+        callback,
+      ) => {
         const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
         callback(null, `${uniqueSuffix}${extname(file.originalname)}`);
       },

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Queue } from 'bullmq';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
@@ -69,7 +69,13 @@ export class OrdersService {
 
   findAll() {
     return this.orderRepository.find({
-      relations: ['user', 'restaurant', 'delivery', 'payment', 'promotions'],
+      relations: [
+        'user',
+        'restaurant',
+        'delivery',
+        'payment',
+        'promotions',
+      ] as unknown as FindOptionsRelations<Order>,
       order: { createdAt: 'DESC' },
     });
   }
@@ -77,7 +83,13 @@ export class OrdersService {
   async findOne(id: string) {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['user', 'restaurant', 'delivery', 'payment', 'promotions'],
+      relations: [
+        'user',
+        'restaurant',
+        'delivery',
+        'payment',
+        'promotions',
+      ] as unknown as FindOptionsRelations<Order>,
     });
     if (!order) throw new NotFoundException(`Order with id ${id} not found`);
     return order;
@@ -139,7 +151,8 @@ export class OrdersService {
   ) {
     if (userId !== undefined) {
       const user = await this.userRepository.findOne({ where: { id: userId } });
-      if (!user) throw new NotFoundException(`User with id ${userId} not found`);
+      if (!user)
+        throw new NotFoundException(`User with id ${userId} not found`);
     }
 
     if (restaurantId) {
@@ -147,7 +160,9 @@ export class OrdersService {
         where: { id: restaurantId },
       });
       if (!restaurant) {
-        throw new NotFoundException(`Restaurant with id ${restaurantId} not found`);
+        throw new NotFoundException(
+          `Restaurant with id ${restaurantId} not found`,
+        );
       }
     }
 

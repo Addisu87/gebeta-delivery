@@ -11,7 +11,10 @@ describe('AdminController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AdminController],
-      providers: [AdminService, { provide: getRepositoryToken(Admin), useValue: {} }],
+      providers: [
+        AdminService,
+        { provide: getRepositoryToken(Admin), useValue: {} },
+      ],
     }).compile();
 
     controller = module.get<AdminController>(AdminController);

@@ -21,5 +21,3 @@ export function calculateDiscountedAmount(
   const discounted = amount * (1 - totalDiscount / 100);
   return roundToTwo(Math.max(0, discounted));
 }
-
-  

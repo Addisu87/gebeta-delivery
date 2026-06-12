@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { Driver } from './entities/driver.entity';
 import { PhotoService } from '../photo/photo.service';
 
@@ -24,7 +24,7 @@ export class DriversService {
 
   findAll() {
     return this.driverRepository.find({
-      relations: ['deliveries'],
+      relations: ['deliveries'] as unknown as FindOptionsRelations<Driver>,
       order: { createdAt: 'DESC' },
     });
   }
@@ -32,7 +32,7 @@ export class DriversService {
   async findOne(id: string) {
     const driver = await this.driverRepository.findOne({
       where: { id },
-      relations: ['deliveries'],
+      relations: ['deliveries'] as unknown as FindOptionsRelations<Driver>,
     });
     if (!driver) {
       throw new NotFoundException(`Driver with id ${id} not found`);

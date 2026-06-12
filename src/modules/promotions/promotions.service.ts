@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { Promotion } from './entities/promotion.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
@@ -25,7 +25,10 @@ export class PromotionsService {
 
   findAll() {
     return this.promotionRepository.find({
-      relations: ['restaurant', 'orders'],
+      relations: [
+        'restaurant',
+        'orders',
+      ] as unknown as FindOptionsRelations<Promotion>,
       order: { createdAt: 'DESC' },
     });
   }
@@ -33,7 +36,10 @@ export class PromotionsService {
   async findOne(id: string) {
     const promotion = await this.promotionRepository.findOne({
       where: { id },
-      relations: ['restaurant', 'orders'],
+      relations: [
+        'restaurant',
+        'orders',
+      ] as unknown as FindOptionsRelations<Promotion>,
     });
     if (!promotion) {
       throw new NotFoundException(`Promotion with id ${id} not found`);
@@ -61,7 +67,9 @@ export class PromotionsService {
       where: { id: restaurantId },
     });
     if (!restaurant) {
-      throw new NotFoundException(`Restaurant with id ${restaurantId} not found`);
+      throw new NotFoundException(
+        `Restaurant with id ${restaurantId} not found`,
+      );
     }
   }
 }

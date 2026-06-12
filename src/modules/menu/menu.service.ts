@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { Menu } from './entities/menu.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
@@ -34,7 +34,7 @@ export class MenuService {
 
   findAll() {
     return this.menuRepository.find({
-      relations: ['restaurant'],
+      relations: ['restaurant'] as unknown as FindOptionsRelations<Menu>,
       order: { createdAt: 'DESC' },
     });
   }
@@ -42,7 +42,7 @@ export class MenuService {
   async findOne(id: string) {
     const menu = await this.menuRepository.findOne({
       where: { id },
-      relations: ['restaurant'],
+      relations: ['restaurant'] as unknown as FindOptionsRelations<Menu>,
     });
     if (!menu) {
       throw new NotFoundException(`Menu with id ${id} not found`);

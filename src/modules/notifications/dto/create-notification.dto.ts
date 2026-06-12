@@ -1,4 +1,10 @@
-import { IsBoolean, IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { NotificationType } from 'src/shared/enums/notification-type.enum';
 
 export class CreateNotificationDto {

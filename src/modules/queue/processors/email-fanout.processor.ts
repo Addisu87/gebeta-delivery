@@ -1,5 +1,10 @@
 import { Logger } from '@nestjs/common';
-import { InjectQueue, OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
+import {
+  InjectQueue,
+  OnWorkerEvent,
+  Processor,
+  WorkerHost,
+} from '@nestjs/bullmq';
 import { Job, Queue } from 'bullmq';
 import {
   EMAIL_QUEUE,
@@ -32,9 +37,7 @@ export class EmailFanoutProcessor extends WorkerHost {
       return { ignored: true };
     }
 
-    this.logger.log(
-      `Email fan-out created id=${job.data.notificationId}`,
-    );
+    this.logger.log(`Email fan-out created id=${job.data.notificationId}`);
 
     if (job.data.recipientEmail) {
       await this.emailDeliveryQueue.add(

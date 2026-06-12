@@ -64,7 +64,12 @@ export class AuthService {
       { jobId: `auth-verify:${user.id}` },
     );
 
-    const { password, refreshToken, verificationToken: _verificationToken, ...safeUser } = user;
+    const {
+      password: _password,
+      refreshToken: _refreshToken,
+      verificationToken: _verificationToken,
+      ...safeUser
+    } = user;
 
     return {
       message: 'Registration successful',

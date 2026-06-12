@@ -11,7 +11,10 @@ describe('ChatController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChatController],
-      providers: [ChatService, { provide: getRepositoryToken(Chat), useValue: {} }],
+      providers: [
+        ChatService,
+        { provide: getRepositoryToken(Chat), useValue: {} },
+      ],
     }).compile();
 
     controller = module.get<ChatController>(ChatController);

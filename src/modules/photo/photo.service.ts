@@ -28,7 +28,10 @@ export class PhotoService {
     return path.replace(/\\/g, '/');
   }
 
-  appendPhoto(existingPhotos: string[] | undefined, photoPath: string): string[] {
+  appendPhoto(
+    existingPhotos: string[] | undefined,
+    photoPath: string,
+  ): string[] {
     return [...(existingPhotos ?? []), this.normalizePath(photoPath)];
   }
 

@@ -1,8 +1,12 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { Driver } from '../drivers/entities/driver.entity';
 import { DeliveryStatus } from 'src/shared/enums/delivery-status.enum';
@@ -31,7 +35,7 @@ export class DeliveriesService {
 
   findAll() {
     return this.deliveryRepository.find({
-      relations: ['driver'],
+      relations: ['driver'] as unknown as FindOptionsRelations<Delivery>,
       order: { createdAt: 'DESC' },
     });
   }
@@ -39,7 +43,7 @@ export class DeliveriesService {
   async findOne(id: string) {
     const delivery = await this.deliveryRepository.findOne({
       where: { id },
-      relations: ['driver'],
+      relations: ['driver'] as unknown as FindOptionsRelations<Delivery>,
     });
     if (!delivery) {
       throw new NotFoundException(`Delivery with id ${id} not found`);
@@ -73,7 +77,9 @@ export class DeliveriesService {
       return;
     }
 
-    const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+    const driver = await this.driverRepository.findOne({
+      where: { id: driverId },
+    });
     if (!driver) {
       throw new NotFoundException(`Driver with id ${driverId} not found`);
     }
@@ -88,12 +94,18 @@ export class DeliveriesService {
     }
 
     const allowedTransitions: Record<DeliveryStatus, DeliveryStatus[]> = {
-      [DeliveryStatus.PENDING]: [DeliveryStatus.ASSIGNED, DeliveryStatus.CANCELLED],
+      [DeliveryStatus.PENDING]: [
+        DeliveryStatus.ASSIGNED,
+        DeliveryStatus.CANCELLED,
+      ],
       [DeliveryStatus.ASSIGNED]: [
         DeliveryStatus.PICKED_UP,
         DeliveryStatus.CANCELLED,
       ],
-      [DeliveryStatus.PICKED_UP]: [DeliveryStatus.DELIVERED, DeliveryStatus.CANCELLED],
+      [DeliveryStatus.PICKED_UP]: [
+        DeliveryStatus.DELIVERED,
+        DeliveryStatus.CANCELLED,
+      ],
       [DeliveryStatus.DELIVERED]: [],
       [DeliveryStatus.CANCELLED]: [],
     };

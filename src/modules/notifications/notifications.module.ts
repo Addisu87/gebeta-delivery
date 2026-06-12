@@ -29,14 +29,9 @@ import type { StringValue } from 'ms';
         },
       }),
     }),
-    BullModule.registerQueue(
-      { name: NOTIFICATIONS_QUEUE },
-    ),
+    BullModule.registerQueue({ name: NOTIFICATIONS_QUEUE }),
   ],
   controllers: [NotificationsController],
-  providers: [
-    NotificationsService,
-    NotificationsGateway,
-  ],
+  providers: [NotificationsService, NotificationsGateway],
 })
 export class NotificationsModule {}

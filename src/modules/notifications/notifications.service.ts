@@ -6,7 +6,10 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Queue } from 'bullmq';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
-import { JOB_NOTIFICATION_CREATED, NOTIFICATIONS_QUEUE } from 'src/shared/constants';
+import {
+  JOB_NOTIFICATION_CREATED,
+  NOTIFICATIONS_QUEUE,
+} from 'src/shared/constants';
 import { NotificationsGateway } from './notifications.gateway';
 import { NotificationType } from 'src/shared/enums/notification-type.enum';
 
@@ -26,7 +29,8 @@ export class NotificationsService {
       type: createNotificationDto.type ?? NotificationType.SYSTEM,
       isRead: createNotificationDto.isRead ?? false,
     });
-    const savedNotification = await this.notificationRepository.save(notification);
+    const savedNotification =
+      await this.notificationRepository.save(notification);
     await this.notificationsQueue.add(
       JOB_NOTIFICATION_CREATED,
       {

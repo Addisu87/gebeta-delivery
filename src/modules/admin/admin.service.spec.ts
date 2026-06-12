@@ -9,7 +9,10 @@ describe('AdminService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AdminService, { provide: getRepositoryToken(Admin), useValue: {} }],
+      providers: [
+        AdminService,
+        { provide: getRepositoryToken(Admin), useValue: {} },
+      ],
     }).compile();
 
     service = module.get<AdminService>(AdminService);

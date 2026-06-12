@@ -10,10 +10,7 @@ export function buildNominatimSearchUrl(address: string): string {
   return `https://nominatim.openstreetmap.org/search?format=json&q=${query}`;
 }
 
-export function buildGoogleGeocodeUrl(
-  address: string,
-  apiKey: string,
-): string {
+export function buildGoogleGeocodeUrl(address: string, apiKey: string): string {
   const normalized = normalizeAddress(address);
   const query = encodeURIComponent(normalized);
   return `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${apiKey}`;
