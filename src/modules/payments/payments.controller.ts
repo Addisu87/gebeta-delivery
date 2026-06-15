@@ -39,6 +39,22 @@ export class PaymentsController {
     return this.paymentsService.handleStripeWebhook(request.rawBody, signature);
   }
 
+  @Post('webhooks/chapa')
+  chapaWebhook(
+    @Req() request: Request & { rawBody?: Buffer },
+    @Headers('x-chapa-signature') xSignature?: string,
+    @Headers('chapa-signature') signature?: string,
+  ) {
+    const activeSignature = xSignature || signature;
+    if (!activeSignature) {
+      throw new BadRequestException('Missing Chapa signature header');
+    }
+    if (!request.rawBody) {
+      throw new BadRequestException('Missing raw body for Chapa webhook');
+    }
+    return this.paymentsService.handleChapaWebhook(request.rawBody, activeSignature);
+  }
+
   @Get()
   findAll() {
     return this.paymentsService.findAll();

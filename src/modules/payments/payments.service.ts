@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -103,15 +104,29 @@ export class PaymentsService {
   }
 
   async handleStripeWebhook(rawBody: Buffer | string, signature: string) {
-    const event = this.stripeProvider.constructWebhookEvent(rawBody, signature);
+    type StripeWebhookEvent = {
+      type: string;
+      data: { object: Record<string, unknown> };
+    };
+
+    let event: StripeWebhookEvent;
+    try {
+      event = this.stripeProvider.constructWebhookEvent(
+        rawBody,
+        signature,
+      ) as unknown as StripeWebhookEvent;
+    } catch (_err: unknown) {
+      throw new BadRequestException('Invalid Stripe webhook event');
+    }
 
     if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
       await this.updateByProviderReference(
         PaymentProvider.STRIPE,
-        event.data.object.id,
+        session.id as string,
         {
           status: PaymentStatus.COMPLETED,
-          providerResponse: event as unknown as Record<string, unknown>,
+          providerResponse: event as Record<string, unknown>,
           failureReason: undefined,
         },
       );
@@ -121,16 +136,59 @@ export class PaymentsService {
       event.type === 'checkout.session.async_payment_failed' ||
       event.type === 'checkout.session.expired'
     ) {
+      const session = event.data.object;
       await this.updateByProviderReference(
         PaymentProvider.STRIPE,
-        event.data.object.id,
+        session.id as string,
         {
           status: PaymentStatus.FAILED,
-          providerResponse: event as unknown as Record<string, unknown>,
+          providerResponse: event as Record<string, unknown>,
           failureReason: event.type,
         },
       );
     }
+
+    return { received: true };
+  }
+
+  async handleChapaWebhook(rawBody: Buffer | string, signature: string) {
+    const webhookSecret =
+      process.env.CHAPA_WEBHOOK_SECRET || process.env.CHAPA_SECRET_KEY;
+    if (!webhookSecret) {
+      throw new BadRequestException('CHAPA_WEBHOOK_SECRET is not configured');
+    }
+
+    const computedSignature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(rawBody)
+      .digest('hex');
+
+    if (computedSignature !== signature) {
+      throw new BadRequestException('Invalid Chapa webhook signature');
+    }
+
+    const parsedBody = JSON.parse(rawBody.toString()) as unknown;
+    if (typeof parsedBody !== 'object' || parsedBody === null) {
+      throw new BadRequestException('Invalid Chapa webhook payload');
+    }
+
+    const payload = parsedBody as { tx_ref?: unknown; [key: string]: unknown };
+    const txRef =
+      typeof payload.tx_ref === 'string' ? payload.tx_ref : undefined;
+    if (!txRef) {
+      throw new BadRequestException('Missing tx_ref in Chapa webhook payload');
+    }
+
+    const isVerified = await this.chapaProvider.verifyPayment(txRef);
+    if (!isVerified) {
+      throw new BadRequestException('Chapa payment verification failed');
+    }
+
+    await this.updateByProviderReference(PaymentProvider.CHAPA, txRef, {
+      status: PaymentStatus.COMPLETED,
+      providerResponse: payload,
+      failureReason: undefined,
+    });
 
     return { received: true };
   }
@@ -146,7 +204,9 @@ export class PaymentsService {
   private resolveProvider(provider: PaymentProvider) {
     if (provider === PaymentProvider.STRIPE) return this.stripeProvider;
     if (provider === PaymentProvider.CHAPA) return this.chapaProvider;
-    throw new BadRequestException(`Unsupported payment provider: ${provider}`);
+    throw new BadRequestException(
+      `Unsupported payment provider: ${String(provider)}`,
+    );
   }
 
   private async updateByProviderReference(

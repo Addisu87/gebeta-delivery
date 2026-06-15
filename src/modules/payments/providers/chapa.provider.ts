@@ -7,6 +7,15 @@ import {
   PaymentProviderInitResult,
 } from './payment-provider.interface';
 
+interface ChapaResponse {
+  status?: string;
+  data?: {
+    checkout_url?: string;
+    tx_ref?: string;
+    status?: string;
+  };
+}
+
 @Injectable()
 export class ChapaProvider implements PaymentGatewayProvider {
   private readonly baseUrl = 'https://api.chapa.co/v1';
@@ -43,7 +52,7 @@ export class ChapaProvider implements PaymentGatewayProvider {
       },
     };
 
-    const response = await axios.post(
+    const response = await axios.post<ChapaResponse>(
       `${this.baseUrl}/transaction/initialize`,
       payload,
       {
@@ -54,8 +63,8 @@ export class ChapaProvider implements PaymentGatewayProvider {
       },
     );
 
-    const checkoutUrl = response.data?.data?.checkout_url as string | undefined;
-    const txRef = response.data?.data?.tx_ref as string | undefined;
+    const checkoutUrl = response.data?.data?.checkout_url;
+    const txRef = response.data?.data?.tx_ref;
 
     if (!txRef) {
       throw new BadRequestException('Chapa initialization failed');
@@ -64,7 +73,31 @@ export class ChapaProvider implements PaymentGatewayProvider {
     return {
       providerReference: txRef,
       checkoutUrl,
-      rawResponse: response.data,
+      rawResponse: response.data as unknown as Record<string, unknown>,
     };
+  }
+
+  async verifyPayment(txRef: string): Promise<boolean> {
+    const secretKey = process.env.CHAPA_SECRET_KEY;
+    if (!secretKey) {
+      throw new BadRequestException('CHAPA_SECRET_KEY is not configured');
+    }
+
+    try {
+      const response = await axios.get<ChapaResponse>(
+        `${this.baseUrl}/transaction/verify/${txRef}`,
+        {
+          headers: {
+            Authorization: `Bearer ${secretKey}`,
+          },
+        },
+      );
+      return (
+        response.data?.status === 'success' &&
+        response.data?.data?.status === 'success'
+      );
+    } catch (_error) {
+      return false;
+    }
   }
 }
