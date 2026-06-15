@@ -52,7 +52,10 @@ export class PaymentsController {
     if (!request.rawBody) {
       throw new BadRequestException('Missing raw body for Chapa webhook');
     }
-    return this.paymentsService.handleChapaWebhook(request.rawBody, activeSignature);
+    return this.paymentsService.handleChapaWebhook(
+      request.rawBody,
+      activeSignature,
+    );
   }
 
   @Get()
